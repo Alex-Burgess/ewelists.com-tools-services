@@ -1,0 +1,196 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless resources for Tools service.
+
+Globals:
+    Function:
+        Timeout: 3
+
+Parameters:
+  Environment:
+    Description: Environment type.
+    Default: test
+    Type: String
+    AllowedValues:
+      - prod
+      - staging
+      - dev
+      - test
+    ConstraintDescription: must specify prod, staging, dev or test.
+  ServiceName:
+    Description: Service name.
+    Default: tools
+    Type: String
+  DomainName:
+    Description: Domain name for your website (example.com)
+    Type: String
+    AllowedPattern: "^[a-z0-9-]*.com$"
+    ConstraintDescription: Must be a web domain, ending in .com. Can include lower case letters, numbers and hypens.
+    Default: ewelists.com
+
+Conditions:
+  Staging: !Equals [ !Ref Environment, staging ]
+  Prod: !Equals [ !Ref Environment, prod ]
+
+Resources:
+  ProductFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ServiceName}-add_product_details-${Environment}'
+      Handler: tools/add_product_details.handler
+      Runtime: python3.6
+      MemorySize: 512
+      Timeout: 3
+      Description: Gets a product from the products table
+      Role: !GetAtt FunctionRole.Arn
+      Environment:
+        Variables:
+          PRODUCTS_TABLE_NAME: !Sub 'products-${Environment}'
+          NOTFOUND_TABLE_NAME: !Sub 'notfound-${Environment}'
+          LISTS_TABLE_NAME: !Sub 'lists-${Environment}'
+          POSTMAN_IDENTITY_ID: "eu-west-1:10b65885-4c7e-4dc5-a9c9-eb7e143336ee"
+          POSTMAN_USERPOOL_SUB: "ae617d08-1127-4066-87ec-b6df345793b8"
+      Events:
+        CreateProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /tools/products/{id}
+            Method: POST
+
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ServiceName}-${Environment}-Api-Role'
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: ProductsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:UpdateItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:DeleteItem'
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-${Environment}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-${Environment}/*"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-${Environment}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-${Environment}/*"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-${Environment}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-${Environment}/*"
+
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Environment
+      MethodSettings:
+        - DataTraceEnabled: true
+          HttpMethod: "*"
+          LoggingLevel: INFO
+          ResourcePath: "/*"
+          MetricsEnabled: false
+      DefinitionBody:
+        swagger: "2.0"
+        info:
+          version: "1.0"
+          title: !Sub '${ServiceName}-${Environment}'
+        schemes:
+        - "https"
+        paths:
+          "/tools/products/{id}":
+            post:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              security:
+              - sigv4: []
+              x-amazon-apigateway-integration:
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProductFunction.Arn}/invocations'
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                type: "aws_proxy"
+            options:
+              consumes:
+              - "application/json"
+              produces:
+              - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: !If [Prod, !Sub "'https://${DomainName}'",
+                                                                            !If [Staging, !Sub "'https://${Environment}.${DomainName}'", "'*'"]
+                                                                          ]
+                    responseTemplates:
+                      application/json: "{}\n"
+                requestTemplates:
+                  application/json: "{\n  \"statusCode\" : 200\n}\n"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+        securityDefinitions:
+          sigv4:
+            type: "apiKey"
+            name: "Authorization"
+            in: "header"
+            x-amazon-apigateway-authtype: "awsSigv4"
+
+  Default400GatewayResponse:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+        ResponseParameters:
+            gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+            gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId: !Ref Api
+
+  Default500GatewayResponse:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+        ResponseParameters:
+            gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+            gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_5XX
+        RestApiId: !Ref Api
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL for stage of Service
+    Value: !Sub 'https://${Api}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/${ServiceName}/'
+
+  ApiId:
+    Description: ID for the API
+    Value: !Ref Api
+
+  FunctionIamRole:
+    Description: Implicit IAM Role created for function
+    Value: !GetAtt FunctionRole.Arn
