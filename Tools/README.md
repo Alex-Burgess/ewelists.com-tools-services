@@ -42,6 +42,19 @@ sam deploy \
     --capabilities CAPABILITY_NAMED_IAM
 ```
 
+### Deploy to staging environment
+```
+aws cloudformation create-stack \
+    --template-body file://packaged.yaml \
+    --stack-name Service-Tools-staging \
+    --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
+    --parameters ParameterKey=Environment,ParameterValue=staging
+```
+
+aws cloudformation create-stack --region us-east-1 --stack-name Web-SSL-Test \
+--template-body file://web-sslcert.yaml \
+--parameters ParameterKey=Environment,ParameterValue=test
+
 ## Logging
 Get logs for last 10 minutes:
 ```
