@@ -32,7 +32,17 @@ def api_add_product_details_event():
 
 @pytest.fixture
 def get_all_lists_response():
-    return [{"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "PRODUCT#12345678-notf-0010-1234-abcdefghijkl"}, "quantity": {"N": "4"}, "reserved": {"N": "3"}, "type": {"S": "notfound"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "PRODUCT#12345678-prod-0001-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "reserved": {"N": "1"}, "type": {"S": "products"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "PRODUCT#12345678-prod-0002-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "reserved": {"N": "0"}, "type": {"S": "products"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "RESERVED#12345678-notf-0010-1234-abcdefghijkl#12345678-user-0002-1234-abcdefghijkl"}, "name": {"S": "Test User2"}, "productId": {"S": "12345678-notf-0010-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0002-1234-abcdefghijkl"}, "quantity": {"N": "2"}, "message": {"S": "Happy Birthday"}, "reservedAt": {"S": "1573739584"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "RESERVED#12345678-notf-0010-1234-abcdefghijkl#12345678-user-0003-1234-abcdefghijkl"}, "name": {"S": "Test User3"}, "productId": {"S": "12345678-notf-0010-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0003-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "message": {"S": "Happy Birthday to you"}, "reservedAt": {"S": "1573739584"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "RESERVED#12345678-prod-0001-1234-abcdefghijkl#12345678-user-0002-1234-abcdefghijkl"}, "name": {"S": "Test User2"}, "productId": {"S": "12345678-prod-0001-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0002-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "message": {"S": "Happy Birthday"}, "reservedAt": {"S": "1573739584"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "SHARED#12345678-user-0001-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0001-1234-abcdefghijkl"}, "shared_user_name": {"S": "Test User1"}, "shared_user_email": {"S": "test.user1@gmail.com"}, "title": {"S": "Child User1 1st Birthday"}, "occasion": {"S": "Birthday"}, "listId": {"S": "12345678-list-0001-1234-abcdefghijkl"}, "listOwner": {"S": "12345678-user-0001-1234-abcdefghijkl"}, "createdAt": {"S": "1573739584"}, "description": {"S": "A gift list for Child User1 birthday."}, "eventDate": {"S": "31 October 2018"}, "imageUrl": {"S": "/images/celebration-default.jpg"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "SHARED#12345678-user-0002-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0002-1234-abcdefghijkl"}, "shared_user_name": {"S": "Test User2"}, "shared_user_email": {"S": "test.user2@gmail.com"}, "title": {"S": "Child User1 1st Birthday"}, "occasion": {"S": "Birthday"}, "listId": {"S": "12345678-list-0001-1234-abcdefghijkl"}, "listOwner": {"S": "12345678-user-0001-1234-abcdefghijkl"}, "createdAt": {"S": "1573739584"}, "description": {"S": "A gift list for Child User1 birthday."}, "eventDate": {"S": "31 October 2018"}, "imageUrl": {"S": "/images/celebration-default.jpg"}}, {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "USER#12345678-user-0001-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0001-1234-abcdefghijkl"}, "title": {"S": "Child User1 1st Birthday"}, "occasion": {"S": "Birthday"}, "listId": {"S": "12345678-list-0001-1234-abcdefghijkl"}, "listOwner": {"S": "12345678-user-0001-1234-abcdefghijkl"}, "createdAt": {"S": "1573739584"}, "description": {"S": "A gift list for Child User1 birthday."}, "eventDate": {"S": "31 October 2018"}, "imageUrl": {"S": "/images/celebration-default.jpg"}}]
+    return [
+        {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "PRODUCT#12345678-notf-0010-1234-abcdefghijkl"}, "quantity": {"N": "4"}, "reserved": {"N": "3"}, "type": {"S": "notfound"}},
+        {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "PRODUCT#12345678-prod-0001-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "reserved": {"N": "1"}, "type": {"S": "products"}},
+        {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "PRODUCT#12345678-prod-0002-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "reserved": {"N": "0"}, "type": {"S": "products"}},
+        {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "RESERVED#12345678-notf-0010-1234-abcdefghijkl#12345678-user-0002-1234-abcdefghijkl"}, "reservationId": {"S": "12345678-resv-0001-1234-abcdefghijkl"}, "name": {"S": "Test User2"}, "productId": {"S": "12345678-notf-0010-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0002-1234-abcdefghijkl"}, "quantity": {"N": "2"}, "reservedAt": {"S": "1573739584"}, "state": {"S": "reserved"}},
+        {"PK": {"S": "RESERVATION#12345678-resv-0001-1234-abcdefghijkl"}, "SK": {"S": "RESERVATION#12345678-resv-0001-1234-abcdefghijkl"}, "reservationId": {"S": "12345678-resv-0001-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0002-1234-abcdefghijkl"}, "name": {"S": "Test User2"}, "email": {"S": "test.user2@gmail.com"}, "listId": {"S": "12345678-list-0001-1234-abcdefghijkl"}, "title": {"S": "Child User1 1st Birthday"}, "productId": {"S": "12345678-notf-0010-1234-abcdefghijkl"}, "productType": {"S": "notfound"}, "quantity": {"N": "2"}, "state": {"S": "reserved"}},
+        {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "RESERVED#12345678-notf-0010-1234-abcdefghijkl#12345678-user-0003-1234-abcdefghijkl"}, "reservationId": {"S": "12345678-resv-0002-1234-abcdefghijkl"}, "name": {"S": "Test User3"}, "productId": {"S": "12345678-notf-0010-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0003-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "reservedAt": {"S": "1573739584"}, "state": {"S": "reserved"}},
+        {"PK": {"S": "RESERVATION#12345678-resv-0002-1234-abcdefghijkl"}, "SK": {"S": "RESERVATION#12345678-resv-0002-1234-abcdefghijkl"}, "reservationId": {"S": "12345678-resv-0002-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0003-1234-abcdefghijkl"}, "name": {"S": "Test User3"}, "email": {"S": "test.user3@gmail.com"}, "listId": {"S": "12345678-list-0001-1234-abcdefghijkl"}, "title": {"S": "Child User1 1st Birthday"}, "productId": {"S": "12345678-notf-0010-1234-abcdefghijkl"}, "productType": {"S": "notfound"}, "quantity": {"N": "1"}, "state": {"S": "reserved"}},
+        {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "RESERVED#12345678-prod-0001-1234-abcdefghijkl#12345678-user-0002-1234-abcdefghijkl"}, "reservationId": {"S": "12345678-resv-0003-1234-abcdefghijkl"}, "name": {"S": "Test User2"}, "productId": {"S": "12345678-prod-0001-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0002-1234-abcdefghijkl"}, "quantity": {"N": "1"}, "reservedAt": {"S": "1573739584"}, "state": {"S": "reserved"}},
+        {"PK": {"S": "RESERVATION#12345678-resv-0003-1234-abcdefghijkl"}, "SK": {"S": "RESERVATION#12345678-resv-0003-1234-abcdefghijkl"}, "reservationId": {"S": "12345678-resv-0003-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0002-1234-abcdefghijkl"}, "name": {"S": "Test User2"}, "email": {"S": "test.user2@gmail.com"}, "listId": {"S": "12345678-list-0001-1234-abcdefghijkl"}, "title": {"S": "Child User1 1st Birthday"}, "productId": {"S": "12345678-prod-0001-1234-abcdefghijkl"}, "productType": {"S": "products"}, "quantity": {"N": "1"}, "state": {"S": "reserved"}},
+        {"PK": {"S": "LIST#12345678-list-0001-1234-abcdefghijkl"}, "SK": {"S": "USER#12345678-user-0001-1234-abcdefghijkl"}, "userId": {"S": "12345678-user-0001-1234-abcdefghijkl"}, "title": {"S": "Child User1 1st Birthday"}, "occasion": {"S": "Birthday"}, "listId": {"S": "12345678-list-0001-1234-abcdefghijkl"}, "listOwner": {"S": "12345678-user-0001-1234-abcdefghijkl"}, "createdAt": {"S": "1573739584"}, "description": {"S": "A gift list for Child User1 birthday."}, "eventDate": {"S": "31 October 2018"}, "imageUrl": {"S": "/images/celebration-default.jpg"}}]
 
 
 @pytest.fixture
@@ -123,7 +133,7 @@ class TestAddProductItems:
         products_items = add_product_details.build_list_product_items(find_product_and_reserved_items, id)
         adds = add_product_details.add_product_items(LISTS_TABLE, products_items)
         assert len(adds['failed']) == 0, "There should be no failed items"
-        assert len(adds['added']) == 3, "There should be 3 failed items"
+        assert len(adds['added']) == 3, "There should be 3 added items"
 
         # Check the table was updated with right number of items
         dynamodb = boto3.client('dynamodb', region_name='eu-west-1')
@@ -134,7 +144,7 @@ class TestAddProductItems:
             ExpressionAttributeValues={":PK":  {'S': list_id}}
         )
 
-        assert len(test_response['Items']) == 12, "Total Items for the list was not as expected."
+        assert len(test_response['Items']) == 10, "Total Items for the list was not as expected."
 
         # Check that the correct items were deleted:
         for item in products_items:
@@ -146,6 +156,22 @@ class TestAddProductItems:
             )
 
             assert len(response['Items']) == 1, "Item was not added as expected."
+
+
+class TestUpdateReservations:
+    def test_update_reservations(self, dynamodb_mock):
+        reservations = ['12345678-resv-0002-1234-abcdefghijkl', '12345678-resv-0003-1234-abcdefghijkl']
+        product_id = '12345678-prod-1000-1234-abcdefghijkl'
+
+        expected_results = [
+            {"productId": {"S": "12345678-prod-1000-1234-abcdefghijkl"}, "productType": {"S": "products"}},
+            {"productId": {"S": "12345678-prod-1000-1234-abcdefghijkl"}, "productType": {"S": "products"}}
+        ]
+
+        updates = add_product_details.update_reservations(LISTS_TABLE, reservations, product_id)
+        assert len(updates['failed']) == 0, "There should be no failed items"
+        assert len(updates['updated']) == 2, "Updated items was wrong."
+        assert updates['updated'] == expected_results, "Array was not as expected"
 
 
 class TestDeleteNotfoundItems:
@@ -164,7 +190,7 @@ class TestDeleteNotfoundItems:
             ExpressionAttributeValues={":PK":  {'S': list_id}}
         )
 
-        assert len(test_response['Items']) == 6, "Total Items for the list was not as expected."
+        assert len(test_response['Items']) == 4, "Total Items for the list was not as expected."
 
         # Check that the correct items were deleted:
         for item in find_product_and_reserved_items:
@@ -220,11 +246,19 @@ class TestFindProductAndReservedItems:
         assert len(items) == 3
 
 
+class TestGetReservations:
+    def test_get_reservations(self, get_all_lists_response):
+        notfound_id = '12345678-notf-0010-1234-abcdefghijkl'
+        expect_reservations = ['12345678-resv-0001-1234-abcdefghijkl', '12345678-resv-0002-1234-abcdefghijkl']
+        id = add_product_details.get_reservations(get_all_lists_response, notfound_id)
+        assert id == expect_reservations, 'Ids not as expected.'
+
+
 class TestGetAllListItems:
     def test_get_all_list_items(self, dynamodb_mock):
         list_id = '12345678-list-0001-1234-abcdefghijkl'
         items = add_product_details.get_all_list_items(LISTS_TABLE, list_id)
-        assert len(items) == 9, "Number of items was not as expected."
+        assert len(items) == 7, "Number of items was not as expected."
 
     def test_list_does_not_exist(self, dynamodb_mock):
         list_id = '12345678-list-0100-1234-abcdefghijkl'
@@ -338,6 +372,7 @@ class TestHandler:
         notfound_deleted = body['notfound_deleted']
         lists_deleted = body['lists_notfound_deleted']
         lists_added = body['lists_products_added']
+        lists_reservations_updated = body['lists_reservations_updated']
 
         assert products_added['productId']['S'] == lists_added[0]['SK']['S'].split('#')[1]
 
@@ -349,3 +384,4 @@ class TestHandler:
 
         assert len(lists_added) == 3
         assert len(lists_deleted) == 3
+        assert len(lists_reservations_updated) == 2

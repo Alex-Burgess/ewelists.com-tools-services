@@ -42,12 +42,13 @@ def handler(event, context):
         else:
             data['products_failed'] = products_product
 
-        # Step 5: Get the product and reserved items
+        # Step 5: Get the product and reserved items. Get reserved id.
         list_id = get_list_id(lists_table, notfound_id)
         list_query_results = get_all_list_items(lists_table, list_id)
         list_notfound_items = find_product_and_reserved_items(list_query_results, notfound_id)
+        reservations = get_reservations(list_query_results, notfound_id)
 
-        # Step 6: Update lists table, removing notfound items and adding products items
+        # Step 6: Update lists table, removing notfound items, adding products items and updating reservation item with new porudct id and type.
         list_product_items = build_list_product_items(list_notfound_items, products_id)
         deletes = delete_notfound_items(lists_table, list_notfound_items)
         if deletes['failed']:
@@ -62,6 +63,14 @@ def handler(event, context):
             data['lists_products_failed'] = adds['failed']
         else:
             data['lists_products_added'] = adds['added']
+
+        # update reservations with productid and type.
+        updates = update_reservations(lists_table, reservations, products_id)
+        if updates['failed']:
+            data['lists_reservations_updated'] = updates['updated']
+            data['lists_reservations_failed'] = updates['failed']
+        else:
+            data['lists_reservations_updated'] = updates['updated']
 
         # step 7: Delete notfound item.
         result = delete_product_from_notfound_table(notfound_table, notfound_id)
@@ -176,6 +185,45 @@ def find_product_and_reserved_items(items, notfound_id):
             related_items.append(item)
 
     return related_items
+
+
+def update_reservations(table_name, reservations, product_id):
+    updates = {"updated": [], "failed": []}
+
+    for id in reservations:
+        try:
+            response = dynamodb.update_item(
+                TableName=table_name,
+                Key={
+                    'PK': {'S': 'RESERVATION#' + id},
+                    'SK': {'S': 'RESERVATION#' + id}
+                },
+                UpdateExpression="set productId = :p, productType=:t",
+                ExpressionAttributeValues={
+                    ':p': {'S': product_id},
+                    ':t': {'S': 'products'},
+                },
+                ReturnValues="UPDATED_NEW"
+            )
+
+            updates['updated'].append(response['Attributes'])
+            logger.info("Reservation updated: " + json.dumps(response))
+        except Exception as e:
+            logger.error("Reservation update exception: " + str(e))
+            updates['failed'].append(id)
+
+    return updates
+
+
+def get_reservations(items, notfound_id):
+    reservations = []
+
+    for item in items:
+        if "RESERVED#" + notfound_id in item['SK']['S']:
+            logger.info("Adding reserved item ({})".format(item))
+            reservations.append(item['reservationId']['S'])
+
+    return reservations
 
 
 def get_all_list_items(lists_table, list_id):
