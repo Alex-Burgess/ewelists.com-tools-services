@@ -33,27 +33,3 @@ try:
 
 except Exception as e:
     print("Unexpected Error:" + e)
-
-
-# Old
-# Test setup
-# usage: python bulk_load_table.py lists-test ../Lists/data/lists-test.json
-# usage: python bulk_load_table.py products-test products-test.json
-# usage: python bulk_load_table.py notfound-test notfound-test.json
-
-# Staging setup
-# usage: python bulk_load_table.py lists-staging ../Lists/data/lists-staging.json
-# usage: python bulk_load_table.py products-staging products-test.json
-# usage: python bulk_load_table.py notfound-staging notfound-test.json
-# try:
-#     with open(file_name, 'r') as f:
-#         for row in f:
-#             items.append(json.loads(row))
-#
-#     with table.batch_writer() as batch:
-#         for item in items:
-#             print("Adding item [{}] to table [{}]".format(item['productId'], table_name))
-#             # batch.put_item(Item=item)
-#
-# except Exception as e:
-#     print("Unexpected Error:" + e)
