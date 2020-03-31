@@ -24,60 +24,40 @@ def handler(event, context):
 
         products_table, notfound_table, lists_table = common.get_table_names(os.environ)
 
-        # Step 1: Get the product Id that we will migrating from notfound to products table
+        # Step 1: Get the product Id and details from event.
         notfound_id = common.get_path_id(event)
-
-        # Step 2: Get the product details from the api event body.
         new_product_details = common.new_product_details(event)
 
-        # Step 3: Get the existing product item from notfound table, which we will take some data from, e.g. productUrl.
-        notfound_product = get_product_from_notfound(notfound_table, notfound_id)
-
-        # Step 4: Create product in products table
+        # Step 2: Create new product item in products table
+        # Get the existing product item from notfound table.  Then use the table to prepare object to be added to products table
+        notfound_product = notfound_table_get_product(notfound_table, notfound_id)
         products_product = build_products_item(notfound_product, new_product_details)
-        products_id = put_product_in_products_table(products_table, products_product)
+        products_id = products_table_create_product(products_table, products_product)
         if products_id:
             products_product['productId'] = {'S': products_id}
-            data['products_added'] = products_product
+            add_to_response_data(data, 'products-product-created', products_product, [])
         else:
-            data['products_failed'] = products_product
+            add_to_response_data(data, 'products-product-created', [], products_product)
 
-        # Step 5: Get the product and reserved items. Get reserved id.
+        # Step 3: Update list with new product and reservation items; delete old notfound and reservation items.
+        # Get the product and reservation list items. Prepare items to create and delete.
         list_id = get_list_id(lists_table, notfound_id)
         list_query_results = get_all_list_items(lists_table, list_id)
-        list_notfound_items = find_product_and_reserved_items(list_query_results, notfound_id)
-        reservations = get_reservations(list_query_results, notfound_id)
+        list_existing_items = find_product_and_reserved_items(list_query_results, notfound_id)
+        list_add_items = build_list_product_items(list_existing_items, products_id)
 
-        # Step 6: Update lists table, removing notfound items, adding products items and updating reservation item with new porudct id and type.
-        list_product_items = build_list_product_items(list_notfound_items, products_id)
-        deletes = delete_notfound_items(lists_table, list_notfound_items)
-        if deletes['failed']:
-            data['lists_notfound_deleted'] = deletes['deleted']
-            data['lists_notfound_failed'] = deletes['failed']
-        else:
-            data['lists_notfound_deleted'] = deletes['deleted']
+        deletes = delete_notfound_items(lists_table, list_existing_items)
+        add_to_response_data(data, 'lists-notfound-deleted', deletes['deleted'], deletes['failed'])
 
-        adds = add_product_items(lists_table, list_product_items)
-        if adds['failed']:
-            data['lists_products_added'] = adds['added']
-            data['lists_products_failed'] = adds['failed']
-        else:
-            data['lists_products_added'] = adds['added']
+        adds = add_product_items(lists_table, list_add_items)
+        add_to_response_data(data, 'lists-products-added', adds['added'], adds['failed'])
 
-        # update reservations with productid and type.
-        updates = update_reservations(lists_table, reservations, products_id)
-        if updates['failed']:
-            data['lists_reservations_updated'] = updates['updated']
-            data['lists_reservations_failed'] = updates['failed']
-        else:
-            data['lists_reservations_updated'] = updates['updated']
-
-        # step 7: Delete notfound item.
-        result = delete_product_from_notfound_table(notfound_table, notfound_id)
+        # step 4: Delete notfound item.
+        result = notfound_table_delete_product(notfound_table, notfound_id)
         if result:
-            data['notfound_deleted'] = notfound_product
+            add_to_response_data(data, 'notfound-product-deleted', notfound_product, [])
         else:
-            data['notfound_failed'] = notfound_product
+            add_to_response_data(data, 'notfound-product-deleted', [], notfound_product)
 
         response = common.create_response(200, json.dumps(data))
     except Exception as e:
@@ -88,7 +68,15 @@ def handler(event, context):
     return response
 
 
-def delete_product_from_notfound_table(notfound_table, id):
+def add_to_response_data(data, key, succeeded_items, failed_items):
+    if len(succeeded_items) > 0:
+        data[key + '_succeeded'] = succeeded_items
+
+    if len(failed_items) > 0:
+        data[key + '_failed'] = failed_items
+
+
+def notfound_table_delete_product(notfound_table, id):
     key = {'productId': {'S': id}}
     condition = {':productId': {'S': id}}
 
@@ -106,6 +94,40 @@ def delete_product_from_notfound_table(notfound_table, id):
         return False
 
     return True
+
+
+def notfound_table_get_product(notfound_table, id):
+    key = {'productId': {'S': id}}
+
+    try:
+        response = dynamodb.get_item(
+            TableName=notfound_table,
+            Key=key
+        )
+    except ClientError as e:
+        logger.error("Exception: {}.".format(e))
+        raise Exception("Unexpected problem getting product from table.")
+
+    logger.info("Get product item response: {}".format(response))
+
+    if 'Item' not in response:
+        raise Exception("No product returned for the id {}.".format(id))
+
+    return response['Item']
+
+
+def products_table_create_product(products_table, new_product):
+    id = str(uuid.uuid4())
+    new_product['productId'] = {'S': id}
+
+    try:
+        logger.info("Product item to be put in table: {}".format(new_product))
+        dynamodb.put_item(TableName=products_table, Item=new_product)
+    except Exception as e:
+        logger.error("Product could not be created: {}".format(e))
+        raise Exception('Product could not be created.')
+
+    return id
 
 
 def add_product_items(lists_table, items):
@@ -164,10 +186,11 @@ def build_list_product_items(items, products_id):
         if "PRODUCT#" in item['SK']['S']:
             item['SK']['S'] = "PRODUCT#" + products_id
             item['type']['S'] = "products"
-        elif "RESERVED#" in item['SK']['S']:
+        elif "RESERVATION#" in item['SK']['S']:
             sk_split = item['SK']['S'].split("#")
-            item['SK']['S'] = "RESERVED#" + products_id + "#" + sk_split[2]
+            item['SK']['S'] = "RESERVATION#" + products_id + "#" + sk_split[2] + '#' + sk_split[3]
             item['productId']['S'] = products_id
+            item['productType']['S'] = 'products'
 
     return product_items
 
@@ -180,50 +203,11 @@ def find_product_and_reserved_items(items, notfound_id):
         if item['SK']['S'] == "PRODUCT#" + notfound_id:
             logger.info("Adding product item ({})".format(item))
             related_items.append(item)
-        elif "RESERVED#" + notfound_id in item['SK']['S']:
+        elif "RESERVATION#" + notfound_id in item['SK']['S']:
             logger.info("Adding reserved item ({})".format(item))
             related_items.append(item)
 
     return related_items
-
-
-def update_reservations(table_name, reservations, product_id):
-    updates = {"updated": [], "failed": []}
-
-    for id in reservations:
-        try:
-            response = dynamodb.update_item(
-                TableName=table_name,
-                Key={
-                    'PK': {'S': 'RESERVATION#' + id},
-                    'SK': {'S': 'RESERVATION#' + id}
-                },
-                UpdateExpression="set productId = :p, productType=:t",
-                ExpressionAttributeValues={
-                    ':p': {'S': product_id},
-                    ':t': {'S': 'products'},
-                },
-                ReturnValues="UPDATED_NEW"
-            )
-
-            updates['updated'].append(response['Attributes'])
-            logger.info("Reservation updated: " + json.dumps(response))
-        except Exception as e:
-            logger.error("Reservation update exception: " + str(e))
-            updates['failed'].append(id)
-
-    return updates
-
-
-def get_reservations(items, notfound_id):
-    reservations = []
-
-    for item in items:
-        if "RESERVED#" + notfound_id in item['SK']['S']:
-            logger.info("Adding reserved item ({})".format(item))
-            reservations.append(item['reservationId']['S'])
-
-    return reservations
 
 
 def get_all_list_items(lists_table, list_id):
@@ -265,20 +249,6 @@ def get_list_id(lists_table, notfound_id):
     return response['Items'][0]['PK']['S'].split("#")[1]
 
 
-def put_product_in_products_table(products_table, new_product):
-    id = str(uuid.uuid4())
-    new_product['productId'] = {'S': id}
-
-    try:
-        logger.info("Product item to be put in table: {}".format(new_product))
-        dynamodb.put_item(TableName=products_table, Item=new_product)
-    except Exception as e:
-        logger.error("Product could not be created: {}".format(e))
-        raise Exception('Product could not be created.')
-
-    return id
-
-
 def build_products_item(notfound_product, new_product_details):
     product = {
         "brand": {'S': new_product_details['brand']},
@@ -289,23 +259,3 @@ def build_products_item(notfound_product, new_product_details):
     }
 
     return product
-
-
-def get_product_from_notfound(notfound_table, id):
-    key = {'productId': {'S': id}}
-
-    try:
-        response = dynamodb.get_item(
-            TableName=notfound_table,
-            Key=key
-        )
-    except ClientError as e:
-        logger.error("Exception: {}.".format(e))
-        raise Exception("Unexpected problem getting product from table.")
-
-    logger.info("Get product item response: {}".format(response))
-
-    if 'Item' not in response:
-        raise Exception("No product returned for the id {}.".format(id))
-
-    return response['Item']
