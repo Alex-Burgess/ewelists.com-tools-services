@@ -1,0 +1,11 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - pip install -q --upgrade pip
+      - pip install -q --user pytest moto boto3 --no-warn-script-location
+      - /root/.local/bin/pytest --version
+  build:
+    commands:
+      - /root/.local/bin/pytest --disable-pytest-warnings Tools/tests/

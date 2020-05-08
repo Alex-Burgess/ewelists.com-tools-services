@@ -4,7 +4,7 @@ Description: Serverless resources for Tools service.
 
 Globals:
     Function:
-        Timeout: 3
+        Timeout: 10
 
 Parameters:
   Environment:
@@ -38,7 +38,7 @@ Resources:
     Properties:
       FunctionName: !Sub '${ServiceName}-add_product_details-${Environment}'
       Handler: tools/add_product_details.handler
-      Runtime: python3.6
+      Runtime: python3.7
       MemorySize: 512
       Timeout: 3
       Description: Gets a product from the products table
