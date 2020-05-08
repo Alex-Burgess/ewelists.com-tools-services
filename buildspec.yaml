@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - pip install --upgrade pip
+      - sam --version
+  build:
+    commands:
+      - cd Tools && sam build && cd ../
+  post_build:
+    commands:
+      - cd Tools && sam package --s3-bucket $TOOLS_BUILD_OUTPUT_BUCKET --output-template-file tools-packaged.yaml && cd ../
+artifacts:
+  files:
+    - Tools/tools-packaged.yaml
+  discard-paths: yes
