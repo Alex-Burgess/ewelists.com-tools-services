@@ -1,38 +1,9 @@
 import pytest
 import os
 import sys
-import logging
-from tools import common
-from tests import fixtures
+from tools import common, logger
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-stream_handler = logging.StreamHandler(sys.stdout)
-logger.addHandler(stream_handler)
-
-
-@pytest.fixture
-def api_path_id_event():
-    event = fixtures.api_gateway_base_event()
-    event['resource'] = "/tools/products/{id}"
-    event['path'] = "/tools/products/12345678-notf-0001-1234-abcdefghijkl"
-    event['pathParameters'] = {"id": "12345678-notf-0001-1234-abcdefghijkl"}
-    return event
-
-
-@pytest.fixture
-def api_no_path_id_event():
-    event = fixtures.api_gateway_base_event()
-    event['resource'] = "/tools/products/"
-    event['path'] = "/tools/products/"
-    return event
-
-
-@pytest.fixture
-def api_product_body_event():
-    event = fixtures.api_gateway_base_event()
-    event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
-    return event
+log = logger.setup_test_logger()
 
 
 def test_create_response():
@@ -45,6 +16,18 @@ def test_create_response():
                             'Access-Control-Allow-Origin': '*'
                          }}
     assert response == expected_response, "Create_response did not return the expected response value."
+
+
+class TestGetEnvironmentVariable:
+    def test_get_variable(self, monkeypatch):
+        monkeypatch.setitem(os.environ, 'TABLE_NAME', 'lists-test')
+        table_name = common.get_env_variable(os.environ, 'TABLE_NAME')
+        assert table_name == "lists-test", "Table name from os environment variables was not as expected."
+
+    def test_get_with_variable_not_set(self):
+        with pytest.raises(Exception) as e:
+            common.get_env_variable(os.environ, 'TABLE_NAME')
+        assert str(e.value) == "TABLE_NAME environment variable not set correctly.", "Exception not as expected."
 
 
 class TestGetProductDetails:

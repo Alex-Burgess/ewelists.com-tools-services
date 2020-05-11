@@ -1,16 +1,22 @@
 # A collection of methods that are common across all modules.
-import logging
 import json
+from tools import logger
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-if logger.handlers:
-    handler = logger.handlers[0]
-    handler.setFormatter(logging.Formatter("[%(levelname)s]\t%(asctime)s.%(msecs)dZ\t%(aws_request_id)s\t%(module)s:%(funcName)s\t%(message)s\n", "%Y-%m-%dT%H:%M:%S"))
+log = logger.setup_logger()
+
+
+def get_env_variable(osenv, name):
+    try:
+        variable = osenv[name]
+        log.info(name + " environment variable value: " + variable)
+    except KeyError:
+        raise Exception(name + ' environment variable not set correctly.')
+
+    return variable
 
 
 def create_response(code, body):
-    logger.info("Creating response with status code ({}) and body ({})".format(code, body))
+    log.info("Creating response with status code ({}) and body ({})".format(code, body))
     response = {'statusCode': code,
                 'body': body,
                 'headers': {
@@ -26,7 +32,7 @@ def get_table_names(osenv):
         notfound_name = osenv['NOTFOUND_TABLE_NAME']
         lists_name = osenv['LISTS_TABLE_NAME']
 
-        logger.info("Table environment variables. PRODUCTS_TABLE_NAME: {}. NOTFOUND_TABLE_NAME: {}. LISTS_TABLE_NAME: {}.".format(products_name, notfound_name, lists_name))
+        log.info("Table environment variables. PRODUCTS_TABLE_NAME: {}. NOTFOUND_TABLE_NAME: {}. LISTS_TABLE_NAME: {}.".format(products_name, notfound_name, lists_name))
     except KeyError:
         raise Exception('Table environment variables not set correctly.')
 
@@ -36,7 +42,7 @@ def get_table_names(osenv):
 def get_path_id(event):
     try:
         id = event['pathParameters']['id']
-        logger.info("Path parameter ID: " + id)
+        log.info("Path parameter ID: " + id)
     except Exception:
         raise Exception('API Event did not contain a path parameter called ID.')
 
@@ -71,6 +77,6 @@ def new_product_details(event):
     else:
         raise Exception('API Event body did not contain the product imageUrl.')
 
-    logger.info("Product details from body: " + json.dumps(product))
+    log.info("Product details from body: " + json.dumps(product))
 
     return product

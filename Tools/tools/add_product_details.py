@@ -1,19 +1,12 @@
 import json
 import os
 import boto3
-import logging
 import uuid
 import copy
-from tools import common
+from tools import common, logger
 from botocore.exceptions import ClientError
 
-
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-if logger.handlers:
-    handler = logger.handlers[0]
-    handler.setFormatter(logging.Formatter("[%(levelname)s]\t%(asctime)s.%(msecs)dZ\t%(aws_request_id)s\t%(module)s:%(funcName)s\t%(message)s\n", "%Y-%m-%dT%H:%M:%S"))
-
+log = logger.setup_logger()
 
 dynamodb = boto3.client('dynamodb')
 
@@ -61,7 +54,7 @@ def handler(event, context):
 
         response = common.create_response(200, json.dumps(data))
     except Exception as e:
-        logger.error("Exception: {}".format(e))
+        log.error("Exception: {}".format(e))
         response = common.create_response(500, json.dumps({'error': str(e)}))
         return response
 
@@ -81,16 +74,16 @@ def notfound_table_delete_product(notfound_table, id):
     condition = {':productId': {'S': id}}
 
     try:
-        logger.info("Deleting product item: {}".format(key))
+        log.info("Deleting product item: {}".format(key))
         response = dynamodb.delete_item(
             TableName=notfound_table,
             Key=key,
             ConditionExpression="productId = :productId",
             ExpressionAttributeValues=condition
         )
-        logger.info("Delete response: {}".format(response))
+        log.info("Delete response: {}".format(response))
     except Exception as e:
-        logger.error("Product could not be deleted. Exception: {}".format(e))
+        log.error("Product could not be deleted. Exception: {}".format(e))
         return False
 
     return True
@@ -105,10 +98,10 @@ def notfound_table_get_product(notfound_table, id):
             Key=key
         )
     except ClientError as e:
-        logger.error("Exception: {}.".format(e))
+        log.error("Exception: {}.".format(e))
         raise Exception("Unexpected problem getting product from table.")
 
-    logger.info("Get product item response: {}".format(response))
+    log.info("Get product item response: {}".format(response))
 
     if 'Item' not in response:
         raise Exception("No product returned for the id {}.".format(id))
@@ -121,10 +114,10 @@ def products_table_create_product(products_table, new_product):
     new_product['productId'] = {'S': id}
 
     try:
-        logger.info("Product item to be put in table: {}".format(new_product))
+        log.info("Product item to be put in table: {}".format(new_product))
         dynamodb.put_item(TableName=products_table, Item=new_product)
     except Exception as e:
-        logger.error("Product could not be created: {}".format(e))
+        log.error("Product could not be created: {}".format(e))
         raise Exception('Product could not be created.')
 
     return id
@@ -135,19 +128,19 @@ def add_product_items(lists_table, items):
 
     for item in items:
         try:
-            logger.info("Put product item: {}".format(item))
+            log.info("Put product item: {}".format(item))
             response = dynamodb.put_item(
                 TableName=lists_table,
                 Item=item,
                 ConditionExpression='attribute_not_exists(PK)'
             )
-            logger.info("Add response: {}".format(response))
+            log.info("Add response: {}".format(response))
             adds['added'].append(item)
         except ClientError as e:
             if e.response['Error']['Code'] == "ConditionalCheckFailedException":
-                logger.error("Product {} already exists in list {}.".format(item['SK']['S'], item['PK']['S']))
+                log.error("Product {} already exists in list {}.".format(item['SK']['S'], item['PK']['S']))
             else:
-                logger.error("Product could not be created: {}".format(e))
+                log.error("Product could not be created: {}".format(e))
 
             adds['failed'].append(item)
 
@@ -163,17 +156,17 @@ def delete_notfound_items(lists_table, items):
         condition = {':PK': {'S': item['PK']['S']}, ':SK': {'S': item['SK']['S']}}
 
         try:
-            logger.info("Deleting product item: {}".format(key))
+            log.info("Deleting product item: {}".format(key))
             response = dynamodb.delete_item(
                 TableName=lists_table,
                 Key=key,
                 ConditionExpression="PK = :PK AND SK = :SK",
                 ExpressionAttributeValues=condition
             )
-            logger.info("Delete response: {}".format(response))
+            log.info("Delete response: {}".format(response))
             deletes['deleted'].append(item)
         except Exception as e:
-            logger.error("Product could not be deleted. Exception: {}".format(e))
+            log.error("Product could not be deleted. Exception: {}".format(e))
             deletes['failed'].append(item)
 
     return deletes
@@ -199,12 +192,12 @@ def find_product_and_reserved_items(items, notfound_id):
     related_items = []
 
     for item in items:
-        logger.debug("Checking response item: {}".format(item))
+        log.debug("Checking response item: {}".format(item))
         if item['SK']['S'] == "PRODUCT#" + notfound_id:
-            logger.info("Adding product item ({})".format(item))
+            log.info("Adding product item ({})".format(item))
             related_items.append(item)
         elif "RESERVATION#" + notfound_id in item['SK']['S']:
-            logger.info("Adding reserved item ({})".format(item))
+            log.info("Adding reserved item ({})".format(item))
             related_items.append(item)
 
     return related_items
@@ -217,7 +210,7 @@ def get_all_list_items(lists_table, list_id):
             KeyConditionExpression="PK = :PK",
             ExpressionAttributeValues={":PK":  {'S': "LIST#{}".format(list_id)}}
         )
-        logger.info("Response: " + json.dumps(response))
+        log.info("Response: " + json.dumps(response))
     except ClientError as e:
         raise Exception("Unexpected error when getting list item from table: " + json.dumps(e.response))
 
@@ -235,9 +228,9 @@ def get_list_id(lists_table, notfound_id):
             KeyConditionExpression="SK = :SK",
             ExpressionAttributeValues={":SK":  {'S': "PRODUCT#" + notfound_id}}
         )
-        logger.info("All items in query response. ({})".format(response['Items']))
+        log.info("All items in query response. ({})".format(response['Items']))
     except Exception as e:
-        logger.info("Exception: " + str(e))
+        log.info("Exception: " + str(e))
         raise Exception("Unexpected error when getting pending lists from table.")
 
     if len(response['Items']) == 0:

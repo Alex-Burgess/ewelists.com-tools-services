@@ -13,6 +13,7 @@ The frontend has not been started yet.
   - [Local API Testing](#local-api-testing)
   - [Logging](#logging)
 - [API Details](#api-details)
+- [NotFound Check](#notfound-check)
 
 ## General
 
@@ -90,4 +91,13 @@ sam deploy \
     --template-file packaged.yaml \
     --stack-name Service-Tools-test \
     --capabilities CAPABILITY_NAMED_IAM
+```
+
+## NotFound Check
+The notfound_check function, is part of the Tools SAM package.  It is triggered to run by a CloudWatch Event Rule, on a periodic basis.
+
+It requires the following ssm parameters to be created.
+```
+aws ssm put-parameter --name /Ewelists/AlertEmail --type String --value "contact@ewelists.com"
+aws ssm put-parameter --name /Ewelists/AlertNumber --type String --value "+4479004*****"
 ```

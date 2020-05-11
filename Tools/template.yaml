@@ -27,6 +27,12 @@ Parameters:
     AllowedPattern: "^[a-z0-9-]*.com$"
     ConstraintDescription: Must be a web domain, ending in .com. Can include lower case letters, numbers and hypens.
     Default: ewelists.com
+  PhoneNumber:
+    Type : 'AWS::SSM::Parameter::Value<String>'
+    Default: /Ewelists/AlertNumber
+  EmailAddress:
+    Type : 'AWS::SSM::Parameter::Value<String>'
+    Default: /Ewelists/AlertEmail
 
 Conditions:
   Staging: !Equals [ !Ref Environment, staging ]
@@ -54,8 +60,6 @@ Resources:
           LISTS_TABLE_NAME:
             Fn::ImportValue:
               !Sub "ListsTable-${Environment}"
-          POSTMAN_IDENTITY_ID: "eu-west-1:10b65885-4c7e-4dc5-a9c9-eb7e143336ee"
-          POSTMAN_USERPOOL_SUB: "ae617d08-1127-4066-87ec-b6df345793b8"
       Events:
         CreateProduct:
           Type: Api
@@ -178,6 +182,77 @@ Resources:
             name: "Authorization"
             in: "header"
             x-amazon-apigateway-authtype: "awsSigv4"
+
+  NotFoundCheckFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ServiceName}-notfound_check-${Environment}'
+      Handler: tools/notfound_check.handler
+      Runtime: python3.7
+      MemorySize: 512
+      Timeout: 10
+      Description: Runs on a regular schedule to check if there items in the NotFound table and send an SMS message if there are.
+      Role: !GetAtt NotFoundCheckFunctionRole.Arn
+      Environment:
+        Variables:
+          NOTFOUND_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "NotFoundTable-${Environment}"
+          TOPIC_ARN: !Ref NotFoundCheckAlertTopic
+      Events:
+        CheckItemsScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: !If
+              - Prod
+              - cron(0/15 7-22 * * ? *)
+              - cron(0/60 7-19 ? * MON-FRI *)
+
+  NotFoundCheckAlertTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: "NotFound-Item-Check-Alerts"
+      DisplayName: !Sub '${Environment} NotFound Item Alert'
+      Subscription:
+        - Endpoint: !Ref PhoneNumber
+          Protocol: sms
+        - Endpoint: !Ref EmailAddress
+          Protocol: email
+
+  NotFoundCheckFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${ServiceName}-${Environment}-NotFoundCheck-Role'
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: ProductsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:Scan'
+                Resource:
+                  - !Sub
+                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
+                    - tablename:
+                        Fn::ImportValue:
+                          !Sub "NotFoundTable-${Environment}"
+              - Effect: Allow
+                Action:
+                  - 'sns:publish'
+                Resource:
+                  - !Ref NotFoundCheckAlertTopic
+
 
   Default400GatewayResponse:
     Type: AWS::ApiGateway::GatewayResponse
