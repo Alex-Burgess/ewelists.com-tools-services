@@ -16,18 +16,27 @@ The frontend has not been started yet.
 
 ## General
 
+### Setup Environment
+The local python environment is kept in sync with the python environment we use in pipeline codebuild project, which is currently 3.7.6.
+```
+pyenv install 3.7.6
+pyenv local 3.7.6
+pip install moto pytest requests_mock boto3
+pip install -r Lists/requirements.txt
+```
+
 ### Create a new SAM project
 
 To create a new SAM serverless api and function project structure:
 ```
-sam init --runtime python3.6 --name lists
+sam init --runtime python3.7 --name lists
 ```
 
 ### Builds Bucket
 
 When packaging a service for deployment to the test environment, an S3 bucket is required to store the builds.  To create this:
 ```
-aws s3 mb sam-builds-contact-test
+aws s3 mb s3://sam-builds-tools-test
 ```
 
 ### Unit Testing
@@ -81,21 +90,4 @@ sam deploy \
     --template-file packaged.yaml \
     --stack-name Service-Tools-test \
     --capabilities CAPABILITY_NAMED_IAM
-```
-
-### Deploy to staging environment
-```
-aws cloudformation create-stack \
-    --template-body file://packaged.yaml \
-    --stack-name Service-Tools-staging \
-    --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
-    --parameters ParameterKey=Environment,ParameterValue=staging
-```
-
-```
-aws cloudformation update-stack \
-    --template-body file://packaged.yaml \
-    --stack-name Service-Tools-staging \
-    --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
-    --parameters ParameterKey=Environment,ParameterValue=staging
 ```

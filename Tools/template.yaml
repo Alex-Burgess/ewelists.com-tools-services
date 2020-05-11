@@ -45,9 +45,15 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TABLE_NAME: !Sub 'products-${Environment}'
-          NOTFOUND_TABLE_NAME: !Sub 'notfound-${Environment}'
-          LISTS_TABLE_NAME: !Sub 'lists-${Environment}'
+          PRODUCTS_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ProductsTable-${Environment}"
+          NOTFOUND_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "NotFoundTable-${Environment}"
+          LISTS_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ListsTable-${Environment}"
           POSTMAN_IDENTITY_ID: "eu-west-1:10b65885-4c7e-4dc5-a9c9-eb7e143336ee"
           POSTMAN_USERPOOL_SUB: "ae617d08-1127-4066-87ec-b6df345793b8"
       Events:
@@ -86,12 +92,21 @@ Resources:
                   - 'dynamodb:Scan'
                   - 'dynamodb:DeleteItem'
                 Resource:
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-${Environment}"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-${Environment}/*"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-${Environment}"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-${Environment}/*"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-${Environment}"
-                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-${Environment}/*"
+                  - !Sub
+                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
+                    - tablename:
+                        Fn::ImportValue:
+                          !Sub "ListsTable-${Environment}"
+                  - !Sub
+                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
+                    - tablename:
+                        Fn::ImportValue:
+                          !Sub "NotFoundTable-${Environment}"
+                  - !Sub
+                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
+                    - tablename:
+                        Fn::ImportValue:
+                          !Sub "ProductsTable-${Environment}"
 
   Api:
     Type: AWS::Serverless::Api
