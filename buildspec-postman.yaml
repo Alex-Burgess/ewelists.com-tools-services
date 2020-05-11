@@ -1,0 +1,20 @@
+version: 0.2
+
+env:
+  parameter-store:
+    POSTMAN: /Postman/Key
+    COLLECTION_ID: /Postman/Collection/Tools
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 8
+  pre_build:
+    commands:
+      - echo Tools Collection ID $COLLECTION_ID
+      - echo Environment ID $ENVIRONMENT_ID
+      - echo Installing Newman
+      - npm install -g newman@4.5.7
+  build:
+    commands:
+      - newman run https://api.getpostman.com/collections/$COLLECTION_ID?apikey=$POSTMAN --environment https://api.getpostman.com/environments/$ENVIRONMENT_ID?apikey=$POSTMAN
