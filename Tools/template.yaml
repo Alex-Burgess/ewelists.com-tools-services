@@ -211,7 +211,7 @@ Resources:
   NotFoundCheckAlertTopic:
     Type: AWS::SNS::Topic
     Properties:
-      TopicName: "NotFound-Item-Check-Alerts"
+      TopicName: !Sub "NotFound-Alert-${Environment}"
       DisplayName: !Sub '${Environment} NotFound Item Alert'
       Subscription:
         - Endpoint: !Ref PhoneNumber
