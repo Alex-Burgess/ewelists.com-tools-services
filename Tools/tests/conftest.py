@@ -8,6 +8,7 @@ LISTS_TABLE = 'lists-unittest'
 NOTFOUND_TABLE = 'notfound-unittest'
 PRODUCTS_TABLE = 'products-unittest'
 
+
 @pytest.fixture
 def dynamodb_mock():
     with mock_dynamodb2():
@@ -98,7 +99,7 @@ def empty_notfound_mock():
     with mock_dynamodb2():
         dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
 
-        table = dynamodb.create_table(
+        dynamodb.create_table(
             TableName=NOTFOUND_TABLE,
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
@@ -184,9 +185,11 @@ def api_event():
         "isBase64Encoded": "false"
     }
 
+
 @pytest.fixture
 def api_base_event():
     return api_event()
+
 
 @pytest.fixture
 def api_add_product_details_event():
@@ -246,3 +249,20 @@ def api_product_body_event():
     event = api_event()
     event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
     return event
+
+
+@pytest.fixture
+def scheduled_event():
+    return {
+        "version": "0",
+        "id": "6c57735b-f38d-d066-7141-2c63f06ac1da",
+        "detail-type": "Scheduled Event",
+        "source": "aws.events",
+        "account": "123456789012",
+        "time": "2020-05-13T10:00:00Z",
+        "region": "eu-west-1",
+        "resources": [
+            "arn:aws:events:eu-west-1:123456789012:rule/Service-Tools-test-NotFoundCheckFunctionCheckItems-6MQ9JRTJ8RT9"
+        ],
+        "detail": {}
+    }

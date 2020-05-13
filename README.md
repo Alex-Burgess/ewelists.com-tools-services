@@ -101,3 +101,10 @@ It requires the following ssm parameters to be created.
 aws ssm put-parameter --name /Ewelists/AlertEmail --type String --value "contact@ewelists.com"
 aws ssm put-parameter --name /Ewelists/AlertNumber --type String --value "+4479004*****"
 ```
+
+There is a cloudwatch alarm that errors if the notfound check lambda function errors.  It also sends a notification if the alarm is unable to get data for 30 minutes, which implies that the schedule is broken.
+
+## Backups
+The backup function, is part of the Tools SAM package.  it is trigger by a CloudWatch Event run, with a schedule of once a day at 06:00.
+
+There is a cloudwatch alarm that errors if the backup lambda function errors.  It also sends a notification if the alarm is unable to get data for 24 hours, which implies that the schedule is broken.

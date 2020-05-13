@@ -1,11 +1,8 @@
 import pytest
 import os
-import sys
 import json
 import boto3
-from moto import mock_dynamodb2
 from tools import add_product_details, logger
-# from tests import fixtures
 
 log = logger.setup_test_logger()
 
@@ -34,6 +31,7 @@ class TestAddToResponseData:
 
         add_product_details.add_to_response_data(data, 'products-product-created', [], product_data)
         assert data['products-product-created_failed']
+
 
 class TestDeleteProductFromNotfoundTable:
     def test_delete_product(self, dynamodb_mock):

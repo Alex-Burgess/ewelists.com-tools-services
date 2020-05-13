@@ -1,6 +1,4 @@
-import pytest
 import os
-import sys
 import json
 import mock
 import boto3
@@ -14,11 +12,11 @@ NOTFOUND_TABLE = 'notfound-unittest'
 
 @mock.patch("tools.notfound_check.send_msg", mock.MagicMock(return_value=True))
 class TestHandler:
-    def test_alert(self, api_base_event, monkeypatch, notfound_mock):
+    def test_alert(self, scheduled_event, monkeypatch, notfound_mock):
         monkeypatch.setitem(os.environ, 'NOTFOUND_TABLE_NAME', NOTFOUND_TABLE)
         monkeypatch.setitem(os.environ, 'TOPIC_ARN', 'arn:aws:sns:eu-west-1:123456789012:NotFound-Item-Check-Alerts')
 
-        response = notfound_check.handler(api_base_event, None)
+        response = notfound_check.handler(scheduled_event, None)
         assert response['statusCode'] == 200
         assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
@@ -26,11 +24,11 @@ class TestHandler:
         assert body['items'] == 1, "Number of items was not as expected."
         assert body['alert_sent'], "Alert was sent."
 
-    def test_no_alert(self, api_base_event, monkeypatch, empty_notfound_mock):
+    def test_no_alert(self, scheduled_event, monkeypatch, empty_notfound_mock):
         monkeypatch.setitem(os.environ, 'NOTFOUND_TABLE_NAME', NOTFOUND_TABLE)
         monkeypatch.setitem(os.environ, 'TOPIC_ARN', 'arn:aws:sns:eu-west-1:123456789012:NotFound-Item-Check-Alerts')
 
-        response = notfound_check.handler(api_base_event, None)
+        response = notfound_check.handler(scheduled_event, None)
         assert response['statusCode'] == 200
         assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 

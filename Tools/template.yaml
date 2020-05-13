@@ -37,6 +37,7 @@ Parameters:
 Conditions:
   Staging: !Equals [ !Ref Environment, staging ]
   Prod: !Equals [ !Ref Environment, prod ]
+  CreateResources: !Or [!Equals [!Ref "Environment", prod], !Equals [!Ref "Environment", staging]]
 
 Resources:
   ProductFunction:
@@ -185,6 +186,7 @@ Resources:
 
   NotFoundCheckFunction:
     Type: AWS::Serverless::Function
+    Condition: CreateResources
     Properties:
       FunctionName: !Sub '${ServiceName}-notfound_check-${Environment}'
       Handler: tools/notfound_check.handler
@@ -203,13 +205,15 @@ Resources:
         CheckItemsScheduledEvent:
           Type: Schedule
           Properties:
-            Schedule: !If
-              - Prod
-              - cron(0/15 7-22 * * ? *)
-              - cron(0/60 7-19 ? * MON-FRI *)
+            Schedule: cron(0/15 7-22 * * ? *)
+            # Schedule: !If
+            #   - Prod
+            #   - cron(0/15 7-22 * * ? *)
+            #   - cron(0/60 7-19 ? * MON-FRI *)
 
   NotFoundCheckAlertTopic:
     Type: AWS::SNS::Topic
+    Condition: CreateResources
     Properties:
       TopicName: !Sub "NotFound-Alert-${Environment}"
       DisplayName: !Sub 'NotFound Item Alert (${Environment})'
@@ -219,8 +223,53 @@ Resources:
         - Endpoint: !Ref EmailAddress
           Protocol: email
 
+  NotFoundCheckErrorTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateResources
+    Properties:
+      TopicName: !Sub "NotFound-Check-Error-${Environment}"
+      DisplayName: !Sub 'NotFound Check Failed with Error (${Environment})'
+      Subscription:
+        - Endpoint: !Ref EmailAddress
+          Protocol: email
+
+  NotFoundCheckFailedTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateResources
+    Properties:
+      TopicName: !Sub "NotFound-Check-Failed-${Environment}"
+      DisplayName: !Sub 'NotFound Did Not Run On Schedule (${Environment})'
+      Subscription:
+        - Endpoint: !Ref EmailAddress
+          Protocol: email
+
+  NotFoundCheckFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateResources
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - !Ref NotFoundCheckErrorTopic
+      AlarmDescription: "Checks that the backups have not been failing."
+      AlarmName: !Sub "Backup Failed ${Environment}"
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref NotFoundCheckFunction
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      Period: 1800
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Threshold: 0.0
+      TreatMissingData: missing
+      InsufficientDataActions:
+        - !Ref NotFoundCheckFailedTopic
+
   NotFoundCheckFunctionRole:
     Type: AWS::IAM::Role
+    Condition: CreateResources
     Properties:
       RoleName: !Sub '${ServiceName}-${Environment}-NotFoundCheck-Role'
       AssumeRolePolicyDocument:
@@ -253,6 +302,112 @@ Resources:
                 Resource:
                   - !Ref NotFoundCheckAlertTopic
 
+  BackupFunction:
+    Type: AWS::Serverless::Function
+    Condition: CreateResources
+    Properties:
+      FunctionName: !Sub '${ServiceName}-backup-${Environment}'
+      Handler: tools/backup.handler
+      Runtime: python3.7
+      MemorySize: 512
+      Timeout: 10
+      Description: Runs on a regular schedule to create backups of the lists and products tables.
+      Role: !GetAtt BackupFunctionRole.Arn
+      Environment:
+        Variables:
+          RETENTION_DAYS: "7"
+          PRODUCTS_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ProductsTable-${Environment}"
+          LISTS_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ListsTable-${Environment}"
+      Events:
+        BackupsScheduleEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 6 * * ? *)
+
+  BackupErrorTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateResources
+    Properties:
+      TopicName: !Sub "Backup-Error-${Environment}"
+      DisplayName: !Sub 'Backup Failed with Error (${Environment})'
+      Subscription:
+        - Endpoint: !Ref EmailAddress
+          Protocol: email
+
+  BackupFailedTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateResources
+    Properties:
+      TopicName: !Sub "Backup-Failed-${Environment}"
+      DisplayName: !Sub 'Backup Did Not Run On Schedule (${Environment})'
+      Subscription:
+        - Endpoint: !Ref EmailAddress
+          Protocol: email
+
+  BackupFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateResources
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - !Ref BackupErrorTopic
+      AlarmDescription: "Checks that the backups have not been failing."
+      AlarmName: !Sub "Backup Failed ${Environment}"
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref BackupFunction
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      Period: 1440
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Threshold: 0.0
+      TreatMissingData: missing
+      InsufficientDataActions:
+        - !Ref BackupFailedTopic
+
+  BackupFunctionRole:
+    Type: AWS::IAM::Role
+    Condition: CreateResources
+    Properties:
+      RoleName: !Sub '${ServiceName}-${Environment}-Backup-Role'
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: ProductsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:CreateBackup
+                  - dynamodb:DeleteBackup
+                  - dynamodb:ListBackups
+                Resource:
+                  - !Sub
+                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
+                    - tablename:
+                        Fn::ImportValue:
+                          !Sub "ListsTable-${Environment}"
+                  - !Sub
+                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
+                    - tablename:
+                        Fn::ImportValue:
+                          !Sub "ProductsTable-${Environment}"
 
   Default400GatewayResponse:
     Type: AWS::ApiGateway::GatewayResponse

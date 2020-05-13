@@ -1,6 +1,5 @@
 import json
 import boto3
-import logging
 import os
 from tools import common, logger
 from botocore.exceptions import ClientError
@@ -13,8 +12,8 @@ sns = boto3.client('sns')
 
 
 def handler(event, context):
-    data= {}
-    
+    data = {}
+
     topic_arn = common.get_env_variable(os.environ, 'TOPIC_ARN')
     table_name = common.get_env_variable(os.environ, 'NOTFOUND_TABLE_NAME')
 
