@@ -191,8 +191,8 @@ Resources:
       FunctionName: !Sub '${ServiceName}-notfound_check-${Environment}'
       Handler: tools/notfound_check.handler
       Runtime: python3.7
-      MemorySize: 128
-      Timeout: 10
+      MemorySize: 256
+      Timeout: 5
       Description: Runs on a regular schedule to check if there items in the NotFound table and send an SMS message if there are.
       Role: !GetAtt NotFoundCheckFunctionRole.Arn
       Environment:
@@ -205,7 +205,7 @@ Resources:
         CheckItemsScheduledEvent:
           Type: Schedule
           Properties:
-            Schedule: cron(0/15 * * * ? *)
+            Schedule: cron(0/30 * * * ? *)
 
   NotFoundCheckAlertTopic:
     Type: AWS::SNS::Topic
@@ -254,7 +254,7 @@ Resources:
           Value: !Ref NotFoundCheckFunction
       DatapointsToAlarm: 1
       EvaluationPeriods: 1
-      Period: 900
+      Period: 1800
       MetricName: Errors
       Namespace: AWS/Lambda
       Statistic: Sum
