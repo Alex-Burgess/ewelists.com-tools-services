@@ -45,7 +45,7 @@ Resources:
     Properties:
       FunctionName: !Sub '${ServiceName}-add_product_details-${Environment}'
       Handler: tools/add_product_details.handler
-      Runtime: python3.7
+      Runtime: python3.8
       MemorySize: 512
       Timeout: 3
       Description: Gets a product from the products table
@@ -190,7 +190,7 @@ Resources:
     Properties:
       FunctionName: !Sub '${ServiceName}-notfound_check-${Environment}'
       Handler: tools/notfound_check.handler
-      Runtime: python3.7
+      Runtime: python3.8
       MemorySize: 256
       Timeout: 5
       Description: Runs on a regular schedule to check if there items in the NotFound table and send an SMS message if there are.
@@ -304,7 +304,7 @@ Resources:
     Properties:
       FunctionName: !Sub '${ServiceName}-backup-${Environment}'
       Handler: tools/backup.handler
-      Runtime: python3.7
+      Runtime: python3.8
       MemorySize: 128
       Timeout: 10
       Description: Runs on a regular schedule to create backups of the lists and products tables.

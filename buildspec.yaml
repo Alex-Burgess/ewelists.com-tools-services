@@ -7,10 +7,14 @@ phases:
       - sam --version
   build:
     commands:
-      - cd Tools && sam build && cd ../
+      - cd Tools
+      - sam build
+      - cd $CODEBUILD_SRC_DIR
   post_build:
     commands:
-      - cd Tools && sam package --s3-bucket $TOOLS_BUILD_OUTPUT_BUCKET --output-template-file tools-packaged.yaml && cd ../
+      - cd Tools
+      - sam package --s3-bucket $TOOLS_BUILD_OUTPUT_BUCKET --output-template-file tools-packaged.yaml
+      - cd $CODEBUILD_SRC_DIR
 artifacts:
   files:
     - Tools/tools-packaged.yaml
