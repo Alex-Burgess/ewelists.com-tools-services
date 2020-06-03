@@ -252,6 +252,13 @@ def api_product_body_event():
 
 
 @pytest.fixture
+def api_product_body_event_with_extras():
+    event = api_event()
+    event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\",\n    \"productUrl\": \"https://example.com/product123456\",\n    \"price\": \"19.99\"\n}"
+    return event
+
+
+@pytest.fixture
 def scheduled_event():
     return {
         "version": "0",

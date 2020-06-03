@@ -248,7 +248,14 @@ def build_products_item(notfound_product, new_product_details):
         "details": {'S': new_product_details['details']},
         "retailer": {'S': new_product_details['retailer']},
         "imageUrl": {'S': new_product_details['imageUrl']},
-        "productUrl": {'S': notfound_product['productUrl']['S']}
     }
+
+    if 'price' in new_product_details:
+        product['price'] = {'S': new_product_details['price']}
+
+    if 'productUrl' in new_product_details:
+        product['productUrl'] = {'S': new_product_details['productUrl']}
+    else:
+        product['productUrl'] = {'S': notfound_product['productUrl']['S']}
 
     return product

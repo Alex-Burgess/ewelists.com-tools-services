@@ -1,6 +1,5 @@
 import pytest
 import os
-import sys
 from tools import common, logger
 
 log = logger.setup_test_logger()
@@ -38,6 +37,18 @@ class TestGetProductDetails:
             "details": "A travel cot, black",
             "retailer": "Bigshop",
             "imageUrl": "https://example.com/images/product1.jpg"
+        }
+        assert product == expected_product, "Product details were not as expected."
+
+    def test_new_product_details_with_price_and_url(self, api_product_body_event_with_extras):
+        product = common.new_product_details(api_product_body_event_with_extras)
+        expected_product = {
+            "brand": "Brand1",
+            "details": "A travel cot, black",
+            "retailer": "Bigshop",
+            "imageUrl": "https://example.com/images/product1.jpg",
+            "productUrl": "https://example.com/product123456",
+            "price": "19.99"
         }
         assert product == expected_product, "Product details were not as expected."
 
