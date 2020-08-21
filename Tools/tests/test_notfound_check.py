@@ -21,7 +21,7 @@ class TestHandler:
         assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
         body = json.loads(response['body'])
-        assert body['items'] == 1, "Number of items was not as expected."
+        assert body['items'] == 2, "Number of items was not as expected."
         assert body['alert_sent'], "Alert was sent."
 
     def test_no_alert(self, scheduled_event, monkeypatch, empty_notfound_mock):
@@ -44,7 +44,7 @@ class TestGetItems:
 
     def test_get_items_from_non_empty_table(self, notfound_mock):
         item_count = notfound_check.get_item_count(NOTFOUND_TABLE)
-        assert item_count == 1, "Notfound table did not contain 1 item"
+        assert item_count == 2, "Notfound table did not contain 1 item"
 
 
 @mock_sns

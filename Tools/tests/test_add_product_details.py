@@ -264,15 +264,15 @@ class TestGetProductFromNotfound:
             "brand": {'S': "JL"},
             "details": {'S': "Safari Mobile"},
             "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"},
-            'createdBy': {'S': 'USER#12345678-user-0001-1234-abcdefghijkl'}
+            'createdBy': {'S': '12345678-user-0001-1234-abcdefghijkl'}
         }
         assert product == expected_product, "Product was not as expected."
 
     def test_with_missing_product_id(self, dynamodb_mock):
-        id = '12345678-notf-0011-1234-abcdefghijkl'
+        id = '12345678-notf-0012-1234-abcdefghijkl'
         with pytest.raises(Exception) as e:
             add_product_details.notfound_table_get_product(NOTFOUND_TABLE, id)
-        assert str(e.value) == "No product returned for the id 12345678-notf-0011-1234-abcdefghijkl.", "Exception not as expected."
+        assert str(e.value) == "No product returned for the id 12345678-notf-0012-1234-abcdefghijkl.", "Exception not as expected."
 
     def test_with_bad_table(self, dynamodb_mock):
         id = '12345678-prod-0001-1234-abcdefghijkl'
@@ -303,7 +303,7 @@ class TestHandler:
         del products_added['productId']
         assert products_added == expected_products_item
 
-        assert notfound_deleted == {"productId": {'S': "12345678-notf-0010-1234-abcdefghijkl"}, "brand": {'S': "JL"}, "details": {'S': "Safari Mobile"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}, 'createdBy': {'S': 'USER#12345678-user-0001-1234-abcdefghijkl'}}
+        assert notfound_deleted == {"productId": {'S': "12345678-notf-0010-1234-abcdefghijkl"}, "brand": {'S': "JL"}, "details": {'S': "Safari Mobile"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}, 'createdBy': {'S': '12345678-user-0001-1234-abcdefghijkl'}}
 
         assert len(lists_added) == 3
         assert len(lists_deleted) == 3
@@ -338,7 +338,7 @@ class TestHandler:
         del products_added['productId']
         assert products_added == expected_products_item
 
-        assert notfound_deleted == {"productId": {'S': "12345678-notf-0010-1234-abcdefghijkl"}, "brand": {'S': "JL"}, "details": {'S': "Safari Mobile"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}, 'createdBy': {'S': 'USER#12345678-user-0001-1234-abcdefghijkl'}}
+        assert notfound_deleted == {"productId": {'S': "12345678-notf-0010-1234-abcdefghijkl"}, "brand": {'S': "JL"}, "details": {'S': "Safari Mobile"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}, 'createdBy': {'S': '12345678-user-0001-1234-abcdefghijkl'}}
 
         assert len(lists_added) == 3
         assert len(lists_deleted) == 3

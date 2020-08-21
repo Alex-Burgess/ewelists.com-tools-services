@@ -24,9 +24,9 @@ Parameters:
   DomainName:
     Description: Domain name for your website (example.com)
     Type: String
-    AllowedPattern: "^[a-z0-9-]*.com$"
+    AllowedPattern: "^[a-z0-9-.]*.com$"
     ConstraintDescription: Must be a web domain, ending in .com. Can include lower case letters, numbers and hypens.
-    Default: ewelists.com
+    Default: tools.ewelists.com
   PhoneNumber:
     Type : 'AWS::SSM::Parameter::Value<String>'
     Default: /Ewelists/AlertNumber
@@ -113,6 +113,54 @@ Resources:
                         Fn::ImportValue:
                           !Sub "ProductsTable-${Environment}"
 
+  ProductCountFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ServiceName}-notfound_count-${Environment}'
+      Handler: tools/notfound_count.handler
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 3
+      Description: Returns the number of items in the notfound table.
+      Role: !GetAtt FunctionRole.Arn
+      Environment:
+        Variables:
+          NOTFOUND_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "NotFoundTable-${Environment}"
+      Events:
+        GetCount:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /tools/products/count
+            Method: GET
+
+
+  ProductListFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ServiceName}-notfound_list-${Environment}'
+      Handler: tools/notfound_list.handler
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 3
+      Description: Returns the number of items in the notfound table.
+      Role: !GetAtt FunctionRole.Arn
+      Environment:
+        Variables:
+          NOTFOUND_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "NotFoundTable-${Environment}"
+      Events:
+        GetProducts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /tools/products
+            Method: GET
+
+
   Api:
     Type: AWS::Serverless::Api
     Properties:
@@ -131,6 +179,52 @@ Resources:
         schemes:
         - "https"
         paths:
+          "/tools/products":
+            get:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              security:
+              - sigv4: []
+              x-amazon-apigateway-integration:
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProductListFunction.Arn}/invocations'
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                type: "aws_proxy"
+            options:
+              consumes:
+              - "application/json"
+              produces:
+              - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: !If [Prod, !Sub "'https://${DomainName}'",
+                                                                            !If [Staging, !Sub "'https://${Environment}.${DomainName}'", "'*'"]
+                                                                          ]
+                    responseTemplates:
+                      application/json: "{}\n"
+                requestTemplates:
+                  application/json: "{\n  \"statusCode\" : 200\n}\n"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
           "/tools/products/{id}":
             post:
               responses:
@@ -167,6 +261,52 @@ Resources:
                     statusCode: "200"
                     responseParameters:
                       method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: !If [Prod, !Sub "'https://${DomainName}'",
+                                                                            !If [Staging, !Sub "'https://${Environment}.${DomainName}'", "'*'"]
+                                                                          ]
+                    responseTemplates:
+                      application/json: "{}\n"
+                requestTemplates:
+                  application/json: "{\n  \"statusCode\" : 200\n}\n"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+          "/tools/products/count":
+            get:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              security:
+              - sigv4: []
+              x-amazon-apigateway-integration:
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProductCountFunction.Arn}/invocations'
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                type: "aws_proxy"
+            options:
+              consumes:
+              - "application/json"
+              produces:
+              - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                       method.response.header.Access-Control-Allow-Origin: !If [Prod, !Sub "'https://${DomainName}'",
                                                                             !If [Staging, !Sub "'https://${Environment}.${DomainName}'", "'*'"]
