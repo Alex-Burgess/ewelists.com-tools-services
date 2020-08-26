@@ -192,6 +192,17 @@ def api_base_event():
 
 
 @pytest.fixture
+def api_notfound_get_event():
+    event = api_event()
+    event['resource'] = "/tools/notfound/{id}"
+    event['path'] = "/tools/notfound/12345678-notf-0010-1234-abcdefghijkl"
+    event['httpMethod'] = "GET"
+    event['pathParameters'] = {"id": "12345678-notf-0010-1234-abcdefghijkl"}
+
+    return event
+
+
+@pytest.fixture
 def api_notfound_count_event():
     event = api_event()
     event['resource'] = "/tools/products/count"
