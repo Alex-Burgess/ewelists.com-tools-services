@@ -2,7 +2,7 @@ import json
 import os
 import boto3
 from tools import common, logger
-from tools.common_entities import Notfound
+from tools.common_entities import Product
 from botocore.exceptions import ClientError
 
 log = logger.setup_logger()
@@ -12,7 +12,7 @@ dynamodb = boto3.client('dynamodb')
 
 def handler(event, context):
     try:
-        table_name = common.get_env_variable(os.environ, 'NOTFOUND_TABLE_NAME')
+        table_name = common.get_env_variable(os.environ, 'PRODUCTS_TABLE_NAME')
         id = common.get_path_id(event)
 
         product = get_item(table_name, id)
@@ -45,6 +45,6 @@ def get_item(table_name, id):
     if 'Item' not in response:
         raise Exception("No product exists with id: {}".format(id))
 
-    product = Notfound(response['Item']).get_product()
+    product = Product(response['Item']).get_product()
 
     return product

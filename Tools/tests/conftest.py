@@ -129,6 +129,41 @@ def notfound_mock():
         yield
 
 
+@pytest.fixture
+def empty_products_mock():
+    with mock_dynamodb2():
+        dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
+
+        dynamodb.create_table(
+            TableName=PRODUCTS_TABLE,
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        yield
+
+
+@pytest.fixture
+def products_mock():
+    with mock_dynamodb2():
+        dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
+
+        table = dynamodb.create_table(
+            TableName=PRODUCTS_TABLE,
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        items = load_test_data(PRODUCTS_TABLE + '.json')
+
+        for item in items:
+            table.put_item(TableName=PRODUCTS_TABLE, Item=item)
+
+        yield
+
+
 def load_test_data(name):
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, '../data/' + name)
@@ -205,7 +240,7 @@ def api_notfound_get_event():
 @pytest.fixture
 def api_notfound_count_event():
     event = api_event()
-    event['resource'] = "/tools/products/count"
+    event['resource'] = "/tools/notfound/count"
     event['path'] = "/tools/products/count"
     event['httpMethod'] = "GET"
 
@@ -215,21 +250,62 @@ def api_notfound_count_event():
 @pytest.fixture
 def api_notfound_list_event():
     event = api_event()
-    event['resource'] = "/tools/products/"
-    event['path'] = "/tools/products/"
+    event['resource'] = "/tools/notfound/"
+    event['path'] = "/tools/notfound/"
     event['httpMethod'] = "GET"
 
     return event
 
 
 @pytest.fixture
-def api_add_product_details_event():
+def api_update_users_gifts_event():
     event = api_event()
-    event['resource'] = "/tools/products/{id}"
-    event['path'] = "/tools/products/12345678-notf-0010-1234-abcdefghijkl"
+    event['resource'] = "/tools/notfound/{id}"
+    event['path'] = "/tools/notfound/12345678-notf-0010-1234-abcdefghijkl"
     event['httpMethod'] = "POST"
     event['pathParameters'] = {"id": "12345678-notf-0010-1234-abcdefghijkl"}
-    event['body'] = "{\n    \"brand\": \"John Lewis\",\n    \"details\": \"John Lewis & Partners Safari Mobile\", \n    \"retailer\": \"John Lewis\",\n    \"imageUrl\": \"https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$\"\n}"
+    event['body'] = json.dumps({
+        "brand": "John Lewis",
+        "details": "John Lewis & Partners Safari Mobile",
+        "retailer": "John Lewis",
+        "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$",
+        "productUrl": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=123456",
+        "price": "20.99"
+    })
+
+    return event
+
+
+@pytest.fixture
+def api_product_create_event():
+    event = api_event()
+    event['resource'] = "/tools/products"
+    event['path'] = "/tools/products"
+    event['httpMethod'] = "POST"
+    event['body'] = "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
+
+    return event
+
+
+@pytest.fixture
+def api_products_get_event():
+    event = api_event()
+    event['resource'] = "/tools/products/{id}"
+    event['path'] = "/tools/products/12345678-prod-0010-1234-abcdefghijkl"
+    event['httpMethod'] = "GET"
+    event['pathParameters'] = {"id": "12345678-prod-0010-1234-abcdefghijkl"}
+
+    return event
+
+
+@pytest.fixture
+def api_product_update_event():
+    event = api_event()
+    event['resource'] = "/tools/products/{id}"
+    event['path'] = "/tools/products/12345678-prod-0010-1234-abcdefghijkl"
+    event['httpMethod'] = "PUT"
+    event['pathParameters'] = {"id": "12345678-prod-0010-1234-abcdefghijkl"}
+    event['body'] = "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
 
     return event
 
@@ -277,13 +353,6 @@ def api_no_path_id_event():
 
 @pytest.fixture
 def api_product_body_event():
-    event = api_event()
-    event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
-    return event
-
-
-@pytest.fixture
-def api_product_body_event_with_extras():
     event = api_event()
     event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\",\n    \"productUrl\": \"https://example.com/product123456\",\n    \"price\": \"19.99\"\n}"
     return event

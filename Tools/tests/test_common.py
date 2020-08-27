@@ -36,16 +36,6 @@ class TestGetProductDetails:
             "brand": "Brand1",
             "details": "A travel cot, black",
             "retailer": "Bigshop",
-            "imageUrl": "https://example.com/images/product1.jpg"
-        }
-        assert product == expected_product, "Product details were not as expected."
-
-    def test_new_product_details_with_price_and_url(self, api_product_body_event_with_extras):
-        product = common.new_product_details(api_product_body_event_with_extras)
-        expected_product = {
-            "brand": "Brand1",
-            "details": "A travel cot, black",
-            "retailer": "Bigshop",
             "imageUrl": "https://example.com/images/product1.jpg",
             "productUrl": "https://example.com/product123456",
             "price": "19.99"
@@ -56,13 +46,13 @@ class TestGetProductDetails:
         api_product_body_event['body'] = "{\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
         with pytest.raises(Exception) as e:
             common.new_product_details(api_product_body_event)
-        assert str(e.value) == "API Event body did not contain the product brand.", "Exception not as expected."
+        assert str(e.value) == "API Event body did not contain the brand.", "Exception not as expected."
 
     def test_no_details_in_body(self, api_product_body_event):
         api_product_body_event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
         with pytest.raises(Exception) as e:
             common.new_product_details(api_product_body_event)
-        assert str(e.value) == "API Event body did not contain the product details.", "Exception not as expected."
+        assert str(e.value) == "API Event body did not contain the details.", "Exception not as expected."
 
     def test_no_retailer_in_body(self, api_product_body_event):
         api_product_body_event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
@@ -74,7 +64,7 @@ class TestGetProductDetails:
         api_product_body_event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\"\n}"
         with pytest.raises(Exception) as e:
             common.new_product_details(api_product_body_event)
-        assert str(e.value) == "API Event body did not contain the product imageUrl.", "Exception not as expected."
+        assert str(e.value) == "API Event body did not contain the imageUrl.", "Exception not as expected."
 
 
 class TestGetTableNames:

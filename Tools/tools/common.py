@@ -1,8 +1,13 @@
 # A collection of methods that are common across all modules.
 import json
+from datetime import datetime
 from tools import logger
 
 log = logger.setup_logger()
+
+
+def currentTimestamp():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 
 def get_env_variable(osenv, name):
@@ -52,37 +57,19 @@ def get_path_id(event):
 def new_product_details(event):
     product = {}
 
+    expected_keys = ["brand", "details", "retailer", "imageUrl", "productUrl", "price"]
+
     try:
         body = json.loads(event['body'])
     except Exception:
         raise Exception('API Event body did not exist.')
 
-    if 'brand' in body:
-        product['brand'] = body['brand']
-    else:
-        raise Exception('API Event body did not contain the product brand.')
-
-    if 'details' in body:
-        product['details'] = body['details']
-    else:
-        raise Exception('API Event body did not contain the product details.')
-
-    if 'retailer' in body:
-        product['retailer'] = body['retailer']
-    else:
-        raise Exception('API Event body did not contain the retailer.')
-
-    if 'imageUrl' in body:
-        product['imageUrl'] = body['imageUrl']
-    else:
-        raise Exception('API Event body did not contain the product imageUrl.')
-
-    if 'productUrl' in body:
-        product['productUrl'] = body['productUrl']
-
-    if 'price' in body:
-        product['price'] = body['price']
-
     log.info("Product details from body: " + json.dumps(product))
+
+    for key in expected_keys:
+        if key in body:
+            product[key] = body[key]
+        else:
+            raise Exception('API Event body did not contain the ' + key + '.')
 
     return product

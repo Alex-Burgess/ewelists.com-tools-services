@@ -20,3 +20,36 @@ class Notfound:
         }
 
         return product
+
+
+class Product:
+
+    def __init__(self, item):
+        self.productId = item.get('productId').get('S')
+        self.brand = item.get('brand').get('S')
+        self.retailer = item.get('retailer').get('S')
+        self.details = item.get('details').get('S')
+        self.price = item.get('price').get('S')
+        self.productUrl = item.get('productUrl').get('S')
+        self.imageUrl = item.get('imageUrl').get('S')
+        if item.get('priceCheckedDate'):
+            self.priceCheckedDate = item.get('priceCheckedDate').get('S')
+
+    def __repr__(self):
+        return "Product<{} -- {} -- {} -- {} -- {}>".format(self.productId, self.brand, self.details, self.productUrl, self.price)
+
+    def get_product(self):
+        product = {
+            'productId': self.productId,
+            'brand': self.brand,
+            'retailer': self.retailer,
+            'details': self.details,
+            'price': self.price,
+            'productUrl': self.productUrl,
+            'imageUrl': self.imageUrl
+        }
+
+        if hasattr(self, 'priceCheckedDate'):
+            product['priceCheckedDate'] = self.priceCheckedDate
+
+        return product
