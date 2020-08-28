@@ -1,7 +1,5 @@
-# ewelists.com-tools-backend
-Backend Serverless functions and APIs for tools relating to the [Ewelists](https://github.com/Alex-Burgess/ewelists.com) application.
-
-The frontend has not been started yet.
+# ewelists.com-tools-services
+Backend Serverless functions and APIs for tools relating to the [Tools](https://github.com/Alex-Burgess/ewelists.com-tools) application.
 
 ## Contents
 
