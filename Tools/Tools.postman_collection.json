@@ -1250,7 +1250,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "e50bc063-1d6e-4b49-bba9-13ffe68a954b",
+								"id": "d9506b96-90d5-4f93-bf52-bfc962264f85",
 								"exec": [
 									"pm.test(\"Add variable for new Product ID\", function() {",
 									"    var jsonData = pm.response.json();",
@@ -1275,6 +1275,16 @@
 									"    var productId = jsonData['productId'];",
 									"    pm.expect(productId.length).to.eql(36);",
 									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "31eed982-3669-4b69-b632-545d9c520213",
+								"exec": [
 									""
 								],
 								"type": "text/javascript"
@@ -1311,7 +1321,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
+							"raw": "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products",
@@ -1339,7 +1349,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "ee3f448c-75d5-444b-93c0-f19f7235c0d7",
+								"id": "70a01c6f-eddc-454d-8f87-ef8fa65c8bd3",
 								"exec": [
 									"pm.test(\"response is ok\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -1429,7 +1439,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "fa2bdf90-167c-471d-b835-3b942e976064",
+								"id": "ecbe7c88-58c8-459e-881a-421fe8d97852",
 								"exec": [
 									"pm.test(\"response is ok\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -1511,7 +1521,7 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "cd6fd070-55d3-4c5b-8b45-1f06a5befbeb",
+								"id": "0de7d16a-e143-461e-8740-8f9d14b2811d",
 								"exec": [
 									"pm.test(\"response is ok\", function () {",
 									"    pm.response.to.have.status(200);",
@@ -1544,7 +1554,7 @@
 						{
 							"listen": "prerequest",
 							"script": {
-								"id": "ba89eb59-5d29-4be6-902f-2ac573ff45f0",
+								"id": "5cc549a7-76d8-430e-8ace-8581c2525bd1",
 								"exec": [
 									""
 								],
@@ -1598,6 +1608,28 @@
 						}
 					},
 					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0f425c32-b88d-4c43-9f38-737981fe646a",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ddfc44c9-3bcd-43f0-8de3-7b7b2bbed0d3",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			],
 			"protocolProfileBehavior": {}

@@ -164,6 +164,55 @@ def products_mock():
         yield
 
 
+@pytest.fixture
+def products_create_environments():
+    with mock_dynamodb2():
+        dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
+
+        # Create lists table
+        table = dynamodb.create_table(
+            TableName='products-test-unittest',
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        items = load_test_data(PRODUCTS_TABLE + '.json')
+
+        for item in items:
+            table.put_item(TableName='products-test-unittest', Item=item)
+
+        # Create notfound table
+        table = dynamodb.create_table(
+            TableName='products-staging-unittest',
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        items = load_test_data(PRODUCTS_TABLE + '.json')
+
+        for item in items:
+            table.put_item(TableName='products-staging-unittest', Item=item)
+        # End of notfound
+
+        # Create products table
+        table = dynamodb.create_table(
+            TableName='products-prod-unittest',
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        items = load_test_data(PRODUCTS_TABLE + '.json')
+
+        for item in items:
+            table.put_item(TableName='products-prod-unittest', Item=item)
+        # End of products
+
+        yield
+
+
 def load_test_data(name):
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, '../data/' + name)
@@ -282,7 +331,17 @@ def api_product_create_event():
     event['resource'] = "/tools/products"
     event['path'] = "/tools/products"
     event['httpMethod'] = "POST"
-    event['body'] = "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
+    event['body'] = json.dumps({
+        "brand": "BABYBJÖRN",
+        "details": "Travel Cot Easy Go, Anthracite, with transport bag",
+        "retailer": "amazon",
+        "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
+        "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
+        "price": "120.99",
+        "test": True,
+        "staging": True,
+        "prod": True
+    })
 
     return event
 

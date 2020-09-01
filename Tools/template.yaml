@@ -40,35 +40,6 @@ Conditions:
   CreateResources: !Or [!Equals [!Ref "Environment", prod], !Equals [!Ref "Environment", staging]]
 
 Resources:
-  AddProductDetailsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub '${ServiceName}-update_users_gifts-${Environment}'
-      Handler: tools/update_users_gifts.handler
-      Runtime: python3.8
-      MemorySize: 512
-      Timeout: 3
-      Description: Gets a product from the products table
-      Role: !GetAtt FunctionRole.Arn
-      Environment:
-        Variables:
-          PRODUCTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-${Environment}"
-          NOTFOUND_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "NotFoundTable-${Environment}"
-          LISTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ListsTable-${Environment}"
-      Events:
-        CreateProduct:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /tools/notfound/{id}
-            Method: POST
-
   FunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -97,21 +68,54 @@ Resources:
                   - 'dynamodb:Scan'
                   - 'dynamodb:DeleteItem'
                 Resource:
-                  - !Sub
-                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
-                    - tablename:
-                        Fn::ImportValue:
-                          !Sub "ListsTable-${Environment}"
-                  - !Sub
-                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
-                    - tablename:
-                        Fn::ImportValue:
-                          !Sub "NotFoundTable-${Environment}"
-                  - !Sub
-                    - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
-                    - tablename:
-                        Fn::ImportValue:
-                          !Sub "ProductsTable-${Environment}"
+                  !If
+                    - Prod
+                    -
+                      - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-*"
+                      - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-*"
+                      - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-*"
+                    - !If
+                      - Staging
+                      -
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-staging"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-staging"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-staging"
+                      -
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
+
+  AddProductDetailsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ServiceName}-update_users_gifts-${Environment}'
+      Handler: tools/update_users_gifts.handler
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 3
+      Description: Gets a product from the products table
+      Role: !GetAtt FunctionRole.Arn
+      Environment:
+        Variables:
+          PRODUCTS_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ProductsTable-${Environment}"
+          NOTFOUND_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "NotFoundTable-${Environment}"
+          LISTS_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ListsTable-${Environment}"
+      Events:
+        CreateProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /tools/notfound/{id}
+            Method: POST
 
   NotFoundCountFunction:
     Type: AWS::Serverless::Function
@@ -194,9 +198,15 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TABLE_NAME:
+          PRODUCTS_TEST_TABLE_NAME:
             Fn::ImportValue:
-              !Sub "ProductsTable-${Environment}"
+              !Sub "ProductsTable-test"
+          PRODUCTS_STAGING_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ProductsTable-staging"
+          PRODUCTS_PROD_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ProductsTable-prod"
       Events:
         CreateProduct:
           Type: Api
