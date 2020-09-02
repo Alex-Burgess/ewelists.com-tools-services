@@ -78,13 +78,16 @@ Resources:
                       - Staging
                       -
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-staging"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test/*"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-staging*"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-staging/*"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-staging"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-staging"
                       -
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test/*"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
 
