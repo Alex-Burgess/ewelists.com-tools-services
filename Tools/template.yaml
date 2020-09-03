@@ -181,6 +181,9 @@ Resources:
           NOTFOUND_TABLE_NAME:
             Fn::ImportValue:
               !Sub "NotFoundTable-${Environment}"
+          LISTS_TABLE_NAME:
+            Fn::ImportValue:
+              !Sub "ListsTable-${Environment}"
       Events:
         GetProducts:
           Type: Api
