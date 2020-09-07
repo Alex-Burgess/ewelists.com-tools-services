@@ -255,9 +255,12 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-${Environment}"
+          PRODUCTS_TEST_TABLE_NAME:
+            Fn::ImportValue: ProductsTable-test
+          PRODUCTS_STAGING_TABLE_NAME:
+            Fn::ImportValue: ProductsTable-staging
+          PRODUCTS_PROD_TABLE_NAME:
+            Fn::ImportValue: ProductsTable-prod
       Events:
         GetProducts:
           Type: Api

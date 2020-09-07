@@ -28,15 +28,11 @@ def handler(event, context):
 
         # Step 2: Search primary table for object.
         product = get_item(primary_table, id)
+        data = {"product": product}
 
         # Step 3: Search secondary environments for object and confirm if exist and if identical.
-        check_results = check_environments(secondary_tables, product)
-
-        # Step 4: Create data object.
-        data = {
-            "product": product,
-            "test_environment_states": check_results
-        }
+        check_results = check_environments(secondary_tables, product.copy())
+        data["test_environment_states"] = check_results
 
         response = common.create_response(200, json.dumps(data))
 

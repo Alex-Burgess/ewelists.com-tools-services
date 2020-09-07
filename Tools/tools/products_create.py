@@ -19,7 +19,7 @@ def handler(event, context):
             'prod': common.get_env_variable(os.environ, 'PRODUCTS_PROD_TABLE_NAME')
         }
 
-        environments_to_update = check_environments(event)
+        environments_to_update = common.check_environments(event)
 
         product_id = str(uuid.uuid4())
         create_obj = common.new_product_details(event)
@@ -42,28 +42,6 @@ def handler(event, context):
         response = common.create_response(200, json.dumps(data))
 
     return response
-
-
-def check_environments(event):
-    log.info("Check which environments to create new product in.")
-
-    environments = []
-
-    try:
-        body = json.loads(event['body'])
-    except Exception:
-        raise Exception('API Event body did not exist.')
-
-    for key in ['test', 'staging', 'prod']:
-        if key in body:
-            if body[key]:
-                environments.append(key)
-        else:
-            raise Exception('API Event body did not contain the ' + key + ' attribute.')
-
-    log.info("Environments to update are: {}.".format(environments))
-
-    return environments
 
 
 def update_tables(tables, environments_to_update, product):

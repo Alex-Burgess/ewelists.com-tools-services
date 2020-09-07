@@ -418,6 +418,17 @@ def api_product_update_event():
     event['httpMethod'] = "PUT"
     event['pathParameters'] = {"id": "12345678-prod-0010-1234-abcdefghijkl"}
     event['body'] = "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
+    event['body'] = json.dumps({
+        "brand": "John Lewis & Partners",
+        "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White",
+        "retailer": "John Lewis & Partners",
+        "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$",
+        "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352",
+        "price": "100.00",
+        "test": True,
+        "staging": True,
+        "prod": True
+    })
 
     return event
 

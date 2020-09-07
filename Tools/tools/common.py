@@ -73,3 +73,25 @@ def new_product_details(event):
             raise Exception('API Event body did not contain the ' + key + '.')
 
     return product
+
+
+def check_environments(event):
+    log.info("Check which environments to create new product in.")
+
+    environments = []
+
+    try:
+        body = json.loads(event['body'])
+    except Exception:
+        raise Exception('API Event body did not exist.')
+
+    for key in ['test', 'staging', 'prod']:
+        if key in body:
+            if body[key]:
+                environments.append(key)
+        else:
+            raise Exception('API Event body did not contain the ' + key + ' attribute.')
+
+    log.info("Environments to update are: {}.".format(environments))
+
+    return environments

@@ -1621,6 +1621,101 @@
 					"response": []
 				},
 				{
+					"name": "check product across environments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b12316e2-eec9-4ed6-b3a5-68bfa6a265bb",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"The returned object should contain the correct product details\", function () {",
+									"    var response_obj = pm.response.json();",
+									"    product = response_obj.product;",
+									"    pm.expect(product.productId.length).to.eql(36);",
+									"    pm.expect(product.retailer).to.eql(\"amazon\");",
+									"    pm.expect(product.brand).to.eql(\"BABYBJÖRN\");",
+									"    pm.expect(product.details).to.eql(\"Travel Cot Easy Go, Anthracite, with transport bag\");",
+									"    pm.expect(product.imageUrl).to.eql(\"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\");",
+									"    pm.expect(product.productUrl).to.eql(\"https://www.amazon.co.uk/dp/B01H24LM58\");",
+									"",
+									"    states = response_obj.test_environment_states;",
+									"    pm.expect(states.staging).to.exist;",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/check/{{p_product_id}}",
+							"protocol": "https",
+							"host": [
+								"{{tools_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"tools",
+								"products",
+								"check",
+								"{{p_product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "update product",
 					"event": [
 						{
@@ -1680,7 +1775,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"Amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
+							"raw": "{\n    \"retailer\": \"Amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/{{p_product_id}}",

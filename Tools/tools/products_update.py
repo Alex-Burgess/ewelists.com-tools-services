@@ -1,6 +1,7 @@
 import json
 import os
 import boto3
+import time
 from tools import common, logger
 from botocore.exceptions import ClientError
 
@@ -11,15 +12,23 @@ dynamodb = boto3.client('dynamodb')
 
 def handler(event, context):
     try:
-        table_name = common.get_env_variable(os.environ, 'PRODUCTS_TABLE_NAME')
+        tables = {
+            'test': common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'),
+            'staging': common.get_env_variable(os.environ, 'PRODUCTS_STAGING_TABLE_NAME'),
+            'prod': common.get_env_variable(os.environ, 'PRODUCTS_PROD_TABLE_NAME')
+        }
+
+        environments_to_update = common.check_environments(event)
 
         id = common.get_path_id(event)
         product = common.new_product_details(event)
-        put_product(table_name, id, product)
 
-        data = {'updated': True}
+        error, data = make_changes(tables, environments_to_update, id, product)
 
-        response = common.create_response(200, json.dumps(data))
+        if error:
+            response = common.create_response(500, json.dumps(data))
+        else:
+            response = common.create_response(200, json.dumps(data))
     except Exception as e:
         log.error("Exception: {}".format(e))
         response = common.create_response(500, json.dumps({'error': str(e)}))
@@ -28,7 +37,51 @@ def handler(event, context):
     return response
 
 
-def put_product(table_name, id, new_product):
+def make_changes(tables, environments_to_update, id, product):
+    results = {}
+    error = False
+
+    for env in environments_to_update:
+        try:
+            table = tables[env]
+            exists = get_product(table, id)
+            if exists:
+                update_product(table, id, product)
+                results[env] = "Updated: " + id
+            else:
+                put_product(table, id, product)
+                results[env] = "Created: " + id
+        except Exception as e:
+            log.error("Exception: {}".format(e))
+            results[env] = "Failed: Unexpected error when updating"
+            error = True
+
+    return error, results
+
+
+def get_product(table_name, id):
+    log.info("Querying table for product id: {}".format(id))
+
+    key = {'productId': {'S': id}}
+
+    try:
+        response = dynamodb.get_item(
+            TableName=table_name,
+            Key=key
+        )
+    except ClientError as e:
+        log.error("Exception: {}.".format(e))
+        raise Exception("Unexpected problem getting product from table.")
+
+    log.info("Get item response ({}): {}".format(table_name, response))
+
+    if 'Item' not in response:
+        return False
+
+    return True
+
+
+def update_product(table_name, id, new_product):
     try:
         log.info("Product item to be put in table: {}".format(new_product))
         response = dynamodb.update_item(
@@ -53,3 +106,34 @@ def put_product(table_name, id, new_product):
         raise Exception('Product could not be updated.')
 
     return True
+
+
+def put_product(table_name, id, product):
+    create_object = product_details(product, id)
+    try:
+        log.info("Product item to be put in table: {}".format(product))
+        dynamodb.put_item(TableName=table_name, Item=create_object)
+    except ClientError as e:
+        log.error("Product could not be created ({}): {}".format(table_name, e))
+        raise Exception("Product could not be created ({}).".format(table_name))
+
+    return True
+
+
+def product_details(product, id):
+    try:
+        product = {
+            'productId': {'S': id},
+            'retailer': {'S': product['retailer']},
+            'brand': {'S': product['brand']},
+            'details': {'S': product['details']},
+            'price': {'S': product['price']},
+            'priceCheckedDate': {'S': common.currentTimestamp()},
+            'productUrl': {'S': product['productUrl']},
+            'imageUrl': {'S': product['imageUrl']},
+            'createdAt': {'N': str(int(time.time()))}
+        }
+    except Exception:
+        raise Exception('API Event body did not contain correct attributes.')
+
+    return product

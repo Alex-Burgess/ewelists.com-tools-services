@@ -1,5 +1,6 @@
 import pytest
 import os
+import json
 from tools import common, logger
 
 log = logger.setup_test_logger()
@@ -112,3 +113,82 @@ class TestGetPathId:
         with pytest.raises(Exception) as e:
             common.get_path_id(api_no_path_id_event)
         assert str(e.value) == "API Event did not contain a path parameter called ID.", "Exception not as expected."
+
+
+class TestCheckEnvironments:
+    def test_missing_environment_throws_exception(self, api_product_create_event):
+        api_product_create_event['body'] = json.dumps({
+            "brand": "BABYBJÖRN",
+            "details": "Travel Cot Easy Go, Anthracite, with transport bag",
+            "retailer": "amazon",
+            "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
+            "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
+            "price": "120.99"
+        })
+
+        with pytest.raises(Exception) as e:
+            common.check_environments(api_product_create_event)
+        assert str(e.value) == "API Event body did not contain the test attribute.", "Exception not as expected."
+
+        # Staging and Prod missing
+        api_product_create_event['body'] = json.dumps({
+            "brand": "BABYBJÖRN",
+            "details": "Travel Cot Easy Go, Anthracite, with transport bag",
+            "retailer": "amazon",
+            "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
+            "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
+            "price": "120.99",
+            "test": True
+        })
+
+        with pytest.raises(Exception) as e:
+            common.check_environments(api_product_create_event)
+        assert str(e.value) == "API Event body did not contain the staging attribute.", "Exception not as expected."
+
+        # Prod missing
+        api_product_create_event['body'] = json.dumps({
+            "brand": "BABYBJÖRN",
+            "details": "Travel Cot Easy Go, Anthracite, with transport bag",
+            "retailer": "amazon",
+            "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
+            "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
+            "price": "120.99",
+            "test": True,
+            "staging": True
+        })
+
+        with pytest.raises(Exception) as e:
+            common.check_environments(api_product_create_event)
+        assert str(e.value) == "API Event body did not contain the prod attribute.", "Exception not as expected."
+
+    def test_update_test(self, api_product_create_event):
+        api_product_create_event['body'] = json.dumps({
+            "brand": "BABYBJÖRN",
+            "details": "Travel Cot Easy Go, Anthracite, with transport bag",
+            "retailer": "amazon",
+            "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
+            "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
+            "price": "120.99",
+            "test": True,
+            "staging": False,
+            "prod": False
+        })
+
+        environments = common.check_environments(api_product_create_event)
+        assert environments == ['test'], "Environments array not as expected."
+
+    def test_update_all(self, api_product_create_event):
+        api_product_create_event['body'] = json.dumps({
+            "brand": "BABYBJÖRN",
+            "details": "Travel Cot Easy Go, Anthracite, with transport bag",
+            "retailer": "amazon",
+            "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
+            "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
+            "price": "120.99",
+            "test": True,
+            "staging": True,
+            "prod": True
+        })
+
+        environments = common.check_environments(api_product_create_event)
+        assert environments == ['test', 'staging', 'prod'], "Environments array not as expected."
