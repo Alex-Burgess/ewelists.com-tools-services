@@ -34,6 +34,7 @@ Parameters:
     Type : 'AWS::SSM::Parameter::Value<String>'
     Default: /Ewelists/AlertEmail
 
+
 Conditions:
   Staging: !Equals [ !Ref Environment, staging ]
   Prod: !Equals [ !Ref Environment, prod ]
@@ -90,6 +91,7 @@ Resources:
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test/*"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-staging"
 
   AddProductDetailsFunction:
     Type: AWS::Serverless::Function
@@ -205,14 +207,11 @@ Resources:
       Environment:
         Variables:
           PRODUCTS_TEST_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-test"
+            Fn::ImportValue: ProductsTable-test
           PRODUCTS_STAGING_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-staging"
+            Fn::ImportValue: ProductsTable-staging
           PRODUCTS_PROD_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-prod"
+            Fn::ImportValue: ProductsTable-prod
       Events:
         CreateProduct:
           Type: Api
@@ -266,6 +265,40 @@ Resources:
             RestApiId: !Ref Api
             Path: /tools/products/{id}
             Method: PUT
+
+  ProductsCheckAllFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub '${ServiceName}-products_check_all-${Environment}'
+      Handler: tools/products_check_all.handler
+      Runtime: python3.8
+      MemorySize: 512
+      Timeout: 3
+      Description: Creates a new product in the products table
+      Role: !GetAtt FunctionRole.Arn
+      Environment:
+        Variables:
+          PRODUCTS_TEST_TABLE_NAME:
+            Fn::ImportValue: ProductsTable-test
+          PRODUCTS_STAGING_TABLE_NAME:
+            Fn::ImportValue: ProductsTable-staging
+          PRODUCTS_PROD_TABLE_NAME:
+            Fn::ImportValue: ProductsTable-prod
+          PRIMARY_ENVIRONMENT:
+            !If [Prod, 'prod',
+              !If [Staging, 'staging', 'test']
+            ]
+          UPDATE_ENVIRONMENTS:
+            !If [Prod, 'test,staging',
+              !If [Staging, 'test', 'staging']
+            ]
+      Events:
+        CheckProduct:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /tools/products/check/{id}
+            Method: GET
 
   Api:
     Type: AWS::Serverless::Api
@@ -533,6 +566,52 @@ Resources:
                     statusCode: "200"
                     responseParameters:
                       method.response.header.Access-Control-Allow-Methods: "'GET,PUT,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: !If [Prod, !Sub "'https://${DomainName}'",
+                                                                            !If [Staging, !Sub "'https://${Environment}.${DomainName}'", "'*'"]
+                                                                          ]
+                    responseTemplates:
+                      application/json: "{}\n"
+                requestTemplates:
+                  application/json: "{\n  \"statusCode\" : 200\n}\n"
+                passthroughBehavior: "when_no_match"
+                type: "mock"
+          "/tools/products/check/{id}":
+            get:
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              security:
+              - sigv4: []
+              x-amazon-apigateway-integration:
+                uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ProductsCheckAllFunction.Arn}/invocations'
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                type: "aws_proxy"
+            options:
+              consumes:
+              - "application/json"
+              produces:
+              - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Headers:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
                       method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
                       method.response.header.Access-Control-Allow-Origin: !If [Prod, !Sub "'https://${DomainName}'",
                                                                             !If [Staging, !Sub "'https://${Environment}.${DomainName}'", "'*'"]

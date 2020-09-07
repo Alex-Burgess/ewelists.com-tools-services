@@ -165,11 +165,11 @@ def products_mock():
 
 
 @pytest.fixture
-def products_create_environments():
+def products_all_environments():
     with mock_dynamodb2():
         dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
 
-        # Create lists table
+        # Create test table
         table = dynamodb.create_table(
             TableName='products-test-unittest',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
@@ -182,7 +182,7 @@ def products_create_environments():
         for item in items:
             table.put_item(TableName='products-test-unittest', Item=item)
 
-        # Create notfound table
+        # Create staging table
         table = dynamodb.create_table(
             TableName='products-staging-unittest',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
@@ -194,9 +194,51 @@ def products_create_environments():
 
         for item in items:
             table.put_item(TableName='products-staging-unittest', Item=item)
-        # End of notfound
 
-        # Create products table
+        # Create prod table
+        table = dynamodb.create_table(
+            TableName='products-prod-unittest',
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        items = load_test_data(PRODUCTS_TABLE + '.json')
+
+        for item in items:
+            table.put_item(TableName='products-prod-unittest', Item=item)
+        # End of products
+
+        yield
+
+
+@pytest.fixture
+def products_all_envs_with_bad_data():
+    with mock_dynamodb2():
+        dynamodb = boto3.resource('dynamodb', region_name='eu-west-1')
+
+        # Create test table - empty
+        table = dynamodb.create_table(
+            TableName='products-test-unittest',
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        # Create staging table - not in sync
+        table = dynamodb.create_table(
+            TableName='products-staging-unittest',
+            KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
+            AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
+            ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+        )
+
+        items = [{"productId": "12345678-prod-0010-1234-abcdefghijkl", "brand": "John Lewis & Partners", "retailer": "John Lewis & Partners", "price": "100.00", "priceCheckedDate": "2020-08-27 16:00:00", "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White", "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352", "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$"}]
+
+        for item in items:
+            table.put_item(TableName='products-staging-unittest', Item=item)
+
+        # Create prod table
         table = dynamodb.create_table(
             TableName='products-prod-unittest',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
@@ -351,6 +393,17 @@ def api_products_get_event():
     event = api_event()
     event['resource'] = "/tools/products/{id}"
     event['path'] = "/tools/products/12345678-prod-0010-1234-abcdefghijkl"
+    event['httpMethod'] = "GET"
+    event['pathParameters'] = {"id": "12345678-prod-0010-1234-abcdefghijkl"}
+
+    return event
+
+
+@pytest.fixture
+def api_product_check_all_event():
+    event = api_event()
+    event['resource'] = "/tools/products/check/{id}"
+    event['path'] = "/tools/products/check/12345678-prod-0010-1234-abcdefghijkl"
     event['httpMethod'] = "GET"
     event['pathParameters'] = {"id": "12345678-prod-0010-1234-abcdefghijkl"}
 

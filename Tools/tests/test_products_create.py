@@ -21,7 +21,7 @@ def environments(monkeypatch):
 
 
 class TestHandler:
-    def test_fails_due_to_missing_product_data(self, api_product_create_event, environments, products_create_environments):
+    def test_fails_due_to_missing_product_data(self, api_product_create_event, environments, products_all_environments):
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
@@ -40,7 +40,7 @@ class TestHandler:
         body = json.loads(response['body'])
         assert body['error'] == 'API Event body did not contain the retailer.', "response did not contain the correct error message."
 
-    def test_fails_due_to_missing_environment(self, api_product_create_event, environments, products_create_environments):
+    def test_fails_due_to_missing_environment(self, api_product_create_event, environments, products_all_environments):
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
@@ -59,7 +59,7 @@ class TestHandler:
         body = json.loads(response['body'])
         assert body['error'] == 'API Event body did not contain the test attribute.', "response did not contain the correct error message."
 
-    def test_fails_due_to_put_error(self, api_product_create_event, monkeypatch, products_create_environments):
+    def test_fails_due_to_put_error(self, api_product_create_event, monkeypatch, products_all_environments):
         monkeypatch.setitem(os.environ, 'PRODUCTS_TEST_TABLE_NAME', PRODUCTS_TEST_TABLE)
         monkeypatch.setitem(os.environ, 'PRODUCTS_STAGING_TABLE_NAME', 'products-mis2-unittest')
         monkeypatch.setitem(os.environ, 'PRODUCTS_PROD_TABLE_NAME', PRODUCTS_PROD_TABLE)
@@ -74,7 +74,7 @@ class TestHandler:
         assert len(body['test'].split(":")[1]) == 36
         assert body['staging'] == 'Failed:Product could not be created (products-mis2-unittest).', "Test update was not as expected"
 
-    def test_create_product_all_environments(self, api_product_create_event, environments, products_create_environments):
+    def test_create_product_all_environments(self, api_product_create_event, environments, products_all_environments):
         response = products_create.handler(api_product_create_event, None)
         assert response['statusCode'] == 200
         assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
@@ -85,7 +85,7 @@ class TestHandler:
         assert body['staging'].split(":")[0] == "Success"
         assert body['prod'].split(":")[0] == "Success"
 
-    def test_create_product_just_test(self, api_product_create_event, environments, products_create_environments):
+    def test_create_product_just_test(self, api_product_create_event, environments, products_all_environments):
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
@@ -143,7 +143,7 @@ class TestGetProductInfo:
 
 
 class TestUpdateTables:
-    def test_update_test(self, products_create_environments):
+    def test_update_test(self, products_all_environments):
         tables = {
             'test': PRODUCTS_TEST_TABLE,
             'staging': PRODUCTS_STAGING_TABLE,
@@ -167,7 +167,7 @@ class TestUpdateTables:
         assert len(results['test'].split(":")[1]) == 36
         assert not errors, "Errors boolean should be false"
 
-    def test_update_to_staging_failed(self, products_create_environments):
+    def test_update_to_staging_failed(self, products_all_environments):
         tables = {
             'test': PRODUCTS_TEST_TABLE,
             'staging': 'bad_staging_table',

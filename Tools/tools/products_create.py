@@ -13,8 +13,6 @@ dynamodb = boto3.client('dynamodb')
 
 def handler(event, context):
     try:
-        log.info("Event: {}.".format(json.dumps(event)))
-
         tables = {
             'test': common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'),
             'staging': common.get_env_variable(os.environ, 'PRODUCTS_STAGING_TABLE_NAME'),
