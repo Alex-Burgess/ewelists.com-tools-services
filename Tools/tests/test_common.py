@@ -36,7 +36,7 @@ class TestGetProductDetails:
         expected_product = {
             "brand": "Brand1",
             "details": "A travel cot, black",
-            "retailer": "Bigshop",
+            "retailer": "bigshop.com",
             "imageUrl": "https://example.com/images/product1.jpg",
             "productUrl": "https://example.com/product123456",
             "price": "19.99"
@@ -44,13 +44,13 @@ class TestGetProductDetails:
         assert product == expected_product, "Product details were not as expected."
 
     def test_no_brand_in_body(self, api_product_body_event):
-        api_product_body_event['body'] = "{\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
+        api_product_body_event['body'] = "{\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"bigshop.com\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
         with pytest.raises(Exception) as e:
             common.new_product_details(api_product_body_event)
         assert str(e.value) == "API Event body did not contain the brand.", "Exception not as expected."
 
     def test_no_details_in_body(self, api_product_body_event):
-        api_product_body_event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
+        api_product_body_event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"retailer\": \"bigshop.com\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
         with pytest.raises(Exception) as e:
             common.new_product_details(api_product_body_event)
         assert str(e.value) == "API Event body did not contain the details.", "Exception not as expected."
@@ -62,7 +62,7 @@ class TestGetProductDetails:
         assert str(e.value) == "API Event body did not contain the retailer.", "Exception not as expected."
 
     def test_no_imageurl_in_body(self, api_product_body_event):
-        api_product_body_event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\"\n}"
+        api_product_body_event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"bigshop.com\"\n}"
         with pytest.raises(Exception) as e:
             common.new_product_details(api_product_body_event)
         assert str(e.value) == "API Event body did not contain the imageUrl.", "Exception not as expected."
@@ -120,7 +120,7 @@ class TestCheckEnvironments:
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99"
@@ -134,7 +134,7 @@ class TestCheckEnvironments:
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99",
@@ -149,7 +149,7 @@ class TestCheckEnvironments:
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99",
@@ -165,7 +165,7 @@ class TestCheckEnvironments:
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99",
@@ -181,7 +181,7 @@ class TestCheckEnvironments:
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99",

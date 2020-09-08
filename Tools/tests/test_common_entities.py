@@ -30,7 +30,7 @@ class TestProduct:
         item = {
             "productId": {"S": "12345678-prod-0010-1234-abcdefghijkl"},
             "brand": {"S": "John Lewis & Partners"},
-            "retailer": {"S": "John Lewis & Partners"},
+            "retailer": {"S": "johnlewis.com"},
             "details": {"S": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White"},
             "price": {"S": "9.00"},
             "priceCheckedDate": {"S": "2020-08-27 16:00:00"},
@@ -43,7 +43,7 @@ class TestProduct:
         assert product == {
             "productId": "12345678-prod-0010-1234-abcdefghijkl",
             "brand": "John Lewis & Partners",
-            "retailer": "John Lewis & Partners",
+            "retailer": "johnlewis.com",
             "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White",
             "price": "9.00",
             "priceCheckedDate": "2020-08-27 16:00:00",

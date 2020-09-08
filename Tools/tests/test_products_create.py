@@ -44,7 +44,7 @@ class TestHandler:
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99",
@@ -89,7 +89,7 @@ class TestHandler:
         api_product_create_event['body'] = json.dumps({
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99",
@@ -116,7 +116,7 @@ class TestGetProductInfo:
         body_object = {
             "brand": "BABYBJÖRN",
             "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-            "retailer": "amazon",
+            "retailer": "amazon.co.uk",
             "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
             "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
             "price": "120.99"
@@ -124,7 +124,7 @@ class TestGetProductInfo:
 
         product = products_create.product_details(body_object, '12345678-prod-new1-1234-abcdefghijkl')
         assert len(product['productId']['S']) == 36, "Attribute was not as expected."
-        assert product['retailer']['S'] == "amazon", "Attribute was not as expected."
+        assert product['retailer']['S'] == "amazon.co.uk", "Attribute was not as expected."
         assert product['brand']['S'] == "BABYBJÖRN", "Attribute was not as expected."
         assert product['details']['S'] == "Travel Cot Easy Go, Anthracite, with transport bag", "Attribute was not as expected."
         assert product['price']['S'] == "120.99", "Attribute was not as expected."
@@ -156,7 +156,7 @@ class TestUpdateTables:
             "productId": {'S': "12345678-prod-new1-1234-abcdefghijkl"},
             "brand": {'S': "BABYBJÖRN"},
             "details": {'S': "Travel Cot Easy Go, Anthracite, with transport bag"},
-            "retailer": {'S': "amazon"},
+            "retailer": {'S': "amazon.co.uk"},
             "imageUrl": {'S': "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg"},
             "productUrl": {'S': "https://www.amazon.co.uk/dp/B01H24LM58"},
             "price": {'S': "120.99"}
@@ -180,7 +180,7 @@ class TestUpdateTables:
             "productId": {'S': "12345678-prod-new1-1234-abcdefghijkl"},
             "brand": {'S': "BABYBJÖRN"},
             "details": {'S': "Travel Cot Easy Go, Anthracite, with transport bag"},
-            "retailer": {'S': "amazon"},
+            "retailer": {'S': "amazon.co.uk"},
             "imageUrl": {'S': "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg"},
             "productUrl": {'S': "https://www.amazon.co.uk/dp/B01H24LM58"},
             "price": {'S': "120.99"}

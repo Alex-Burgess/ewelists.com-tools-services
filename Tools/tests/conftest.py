@@ -2,11 +2,23 @@ import json
 import os
 import pytest
 import boto3
-from moto import mock_dynamodb2
+from moto import mock_dynamodb2, mock_ssm
 
 LISTS_TABLE = 'lists-unittest'
 NOTFOUND_TABLE = 'notfound-unittest'
 PRODUCTS_TABLE = 'products-unittest'
+
+
+@pytest.fixture
+def ssm_mock():
+    with mock_ssm():
+        path = '/Test/APIKey'
+        key = "12345678"
+
+        ssm = boto3.client('ssm')
+        ssm.put_parameter(Name=path, Value=key, Type='SecureString')
+
+        yield
 
 
 @pytest.fixture
@@ -233,7 +245,7 @@ def products_all_envs_with_bad_data():
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = [{"productId": "12345678-prod-0010-1234-abcdefghijkl", "brand": "John Lewis & Partners", "retailer": "John Lewis & Partners", "price": "100.00", "priceCheckedDate": "2020-08-27 16:00:00", "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White", "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352", "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$"}]
+        items = [{"productId": "12345678-prod-0010-1234-abcdefghijkl", "brand": "John Lewis & Partners", "retailer": "johnlewis.com", "price": "100.00", "priceCheckedDate": "2020-08-27 16:00:00", "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White", "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352", "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$"}]
 
         for item in items:
             table.put_item(TableName='products-staging-unittest', Item=item)
@@ -358,7 +370,7 @@ def api_update_users_gifts_event():
     event['body'] = json.dumps({
         "brand": "John Lewis",
         "details": "John Lewis & Partners Safari Mobile",
-        "retailer": "John Lewis",
+        "retailer": "johnlewis.com",
         "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$",
         "productUrl": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=123456",
         "price": "20.99"
@@ -376,7 +388,7 @@ def api_product_create_event():
     event['body'] = json.dumps({
         "brand": "BABYBJÖRN",
         "details": "Travel Cot Easy Go, Anthracite, with transport bag",
-        "retailer": "amazon",
+        "retailer": "amazon.co.uk",
         "imageUrl": "https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg",
         "productUrl": "https://www.amazon.co.uk/dp/B01H24LM58",
         "price": "120.99",
@@ -417,11 +429,11 @@ def api_product_update_event():
     event['path'] = "/tools/products/12345678-prod-0010-1234-abcdefghijkl"
     event['httpMethod'] = "PUT"
     event['pathParameters'] = {"id": "12345678-prod-0010-1234-abcdefghijkl"}
-    event['body'] = "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
+    event['body'] = "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\"\n}"
     event['body'] = json.dumps({
         "brand": "John Lewis & Partners",
         "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White",
-        "retailer": "John Lewis & Partners",
+        "retailer": "johnlewis.com",
         "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$",
         "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352",
         "price": "100.00",
@@ -477,7 +489,7 @@ def api_no_path_id_event():
 @pytest.fixture
 def api_product_body_event():
     event = api_event()
-    event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"Bigshop\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\",\n    \"productUrl\": \"https://example.com/product123456\",\n    \"price\": \"19.99\"\n}"
+    event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"bigshop.com\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\",\n    \"productUrl\": \"https://example.com/product123456\",\n    \"price\": \"19.99\"\n}"
     return event
 
 
@@ -495,4 +507,74 @@ def scheduled_event():
             "arn:aws:events:eu-west-1:123456789012:rule/Service-Tools-test-NotFoundCheckFunctionCheckItems-6MQ9JRTJ8RT9"
         ],
         "detail": {}
+    }
+
+
+@pytest.fixture
+def api_check_details_event():
+    event = api_event()
+    event['resource'] = "/tools/check/details/{url}"
+    event['path'] = "/tools/check/details/https%3A%2F%2Fwww.johnlewis.com%2Fgaia-baby-serena-nursing-rocking-chair-oat%2Fp4797478"
+    event['httpMethod'] = "GET"
+    event['pathParameters'] = {"url": "https%3A%2F%2Fwww.johnlewis.com%2Fgaia-baby-serena-nursing-rocking-chair-oat%2Fp4797478"}
+    event['body'] = "null"
+
+    return event
+
+
+@pytest.fixture
+def scraping_hub_response():
+    return {
+        'query': {
+            'id': '1599575579454-9cd66182fe9b087f',
+            'domain': 'johnlewis.com',
+            'userQuery': {
+                'url': 'https://www.johnlewis.com/gaia-baby-serena-nursing-rocking-chair-oat/p4797478',
+                'pageType': 'product'
+            }
+        },
+        'webPage': {'inLanguages': [{'code': 'en'}]},
+        'product': {
+            'name': 'Gaia Baby Serena Nursing Rocking Chair, Oat',
+            'description': 'Product code: 32481601\n\nBeautifully contoured with classic styling, the Serena Nursing Rocking Chair from Gaia Baby will add a contemporary feel to any nursery or living space.\n\nErgonomically designed to provide optimum comfort as a nursing/feeding chair, it has an extra lumbar cushion and padded armrests and is generously sized to accommodate a parent and child for bedtime stories as they grow. The softly contoured legs are made from laminated birch-wood veneer using a special technique during the manufacturing process to give extra strength and avoid splintering for a smooth and soothing rocking motion.\n\nIt is finely upholstered with removable and washable armrests in durable woven polyester.',
+            'mainImage': 'https://johnlewis.scene7.com/is/image/JohnLewis/238364338?$rsp-pdp-port-1440$',
+            'images': [
+                'https://johnlewis.scene7.com/is/image/JohnLewis/238364338?$rsp-pdp-port-1440$',
+                'https://johnlewis.scene7.com/is/image/JohnLewis/238364338alt2?$rsp-pdp-port-1440$',
+                'https://johnlewis.scene7.com/is/image/JohnLewis/238364338alt3?$rsp-pdp-port-1440$',
+                'https://johnlewis.scene7.com/is/image/JohnLewis/238364338alt1?$rsp-pdp-port-1440$'
+            ],
+            'url': 'https://www.johnlewis.com/gaia-baby-serena-nursing-rocking-chair-oat/p4797478',
+            'additionalProperty': [
+                {'name': 'assembly required', 'value': 'Partial self-assembly required'},
+                {'name': 'brand', 'value': 'Gaia Baby'},
+                {'name': 'care instructions', 'value': 'Spot clean, washable armrest covers'},
+                {'name': 'cover type', 'value': 'Fixed'},
+                {'name': 'dimensions', 'value': 'H81 x W94 x D78cm'},
+                {'name': 'filling composition', 'value': 'Polyester'},
+                {'name': 'finish', 'value': 'Natural'},
+                {'name': 'frame construction', 'value': 'Screwed and dowelled'},
+                {'name': 'frame material', 'value': 'Birch plywood'},
+                {'name': 'fsc certified', 'value': 'YES'},
+                {'name': 'material', 'value': '80% Polyester, 20% Viscose, Legs: Birch plywood'},
+                {'name': 'product code', 'value': '32481601'},
+                {'name': 'quality', 'value': 'Poor'},
+                {'name': 'value', 'value': 'Great'},
+                {'name': 'value: poor', 'value': 'Quality: Poor'},
+                {'name': 'weight read tooltip information unpackaged weight of the product', 'value': '21.2kg'}
+            ],
+            'offers': [
+                {'price': '399.99', 'currency': '£', 'availability': 'InStock'}
+            ],
+            'sku': '32481601',
+            'brand': 'Gaia Baby',
+            'breadcrumbs': [
+                {'name': 'Homepage', 'link': 'https://www.johnlewis.com/'},
+                {'name': 'Baby & Child', 'link': 'https://www.johnlewis.com/baby-child/c5000010'},
+                {'name': 'Nursery Furniture & Furnishings', 'link': 'https://www.johnlewis.com/baby-child/nursery-furniture-furnishings/c6000062'},
+                {'name': 'Nursing Chairs', 'link': 'https://www.johnlewis.com/browse/baby-child/nursery-furniture-furnishings/nursing-chairs/_/N-8es'}
+            ],
+            'probability': 0.98316103,
+            'aggregateRating': {'reviewCount': 6}
+        }
     }

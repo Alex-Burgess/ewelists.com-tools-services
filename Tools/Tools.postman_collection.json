@@ -151,7 +151,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Baby Carrier One, Cotton Mix, Denim Grey/Dark Grey\",\n    \"retailer\": \"Amazon\",\n    \"imageUrl\": \"//ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0792ZS2GP&Format=_SL250_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=ewelists-21&language=en_GB\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B0792ZS2GP/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=ewelists-21&linkId=00f788f132fc05940f26eb7f88a48a7c&language=en_GB\"\n}"
+							"raw": "{\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Baby Carrier One, Cotton Mix, Denim Grey/Dark Grey\",\n    \"retailer\": \"amazon.co.uk\",\n    \"imageUrl\": \"//ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0792ZS2GP&Format=_SL250_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=ewelists-21&language=en_GB\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B0792ZS2GP/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=ewelists-21&linkId=00f788f132fc05940f26eb7f88a48a7c&language=en_GB\"\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/notfound/12345678",
@@ -483,7 +483,7 @@
 									"    ",
 									"    pm.expect(jsonData['products-product-created_succeeded']['brand']['S']).to.eql(\"BABYBJÖRN\");",
 									"    pm.expect(jsonData['products-product-created_succeeded']['details']['S']).to.eql(\"Baby Carrier One, Cotton Mix, Denim Grey/Dark Grey\");",
-									"    pm.expect(jsonData['products-product-created_succeeded']['retailer']['S']).to.eql(\"Amazon\");",
+									"    pm.expect(jsonData['products-product-created_succeeded']['retailer']['S']).to.eql(\"amazon.co.uk\");",
 									"    pm.expect(jsonData['products-product-created_succeeded']['price']['S']).to.eql(\"100.00\");",
 									"    pm.expect(jsonData['products-product-created_succeeded']['imageUrl']['S']).to.eql(\"//ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0792ZS2GP&Format=_SL250_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=ewelists-21&language=en_GB\");",
 									"    pm.expect(jsonData['products-product-created_succeeded']['productUrl']['S']).to.eql(\"https://www.amazon.co.uk/dp/B0792ZS2GP/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=ewelists-21&linkId=00f788f132fc05940f26eb7f88a48a7c&language=en_GB\");",
@@ -560,7 +560,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Baby Carrier One, Cotton Mix, Denim Grey/Dark Grey\",\n    \"retailer\": \"Amazon\",\n    \"imageUrl\": \"//ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0792ZS2GP&Format=_SL250_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=ewelists-21&language=en_GB\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B0792ZS2GP/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=ewelists-21&linkId=00f788f132fc05940f26eb7f88a48a7c&language=en_GB\"\n}"
+							"raw": "{\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Baby Carrier One, Cotton Mix, Denim Grey/Dark Grey\",\n    \"retailer\": \"amazon.co.uk\",\n    \"imageUrl\": \"//ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0792ZS2GP&Format=_SL250_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=ewelists-21&language=en_GB\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B0792ZS2GP/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=ewelists-21&linkId=00f788f132fc05940f26eb7f88a48a7c&language=en_GB\"\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/notfound/{{nf_product_id}}",
@@ -1424,6 +1424,104 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "delete list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "827feb36-8821-47db-b760-8a4f62165c13",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response should confirm deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var deletedBool = jsonData['deleted'];",
+									"    pm.expect(deletedBool).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response should have a delete count\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var count = jsonData['count'];",
+									"    pm.expect(count).to.eql(2);",
+									"});",
+									"",
+									"pm.test(\"Clear environment variable\", function() {",
+									"    pm.environment.unset(\"list_id\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "8f0be130-2fb1-441d-9481-334864af700b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists/{{list_id}}",
+							"protocol": "https",
+							"host": [
+								"{{lists_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"lists",
+								"{{list_id}}"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -1508,7 +1606,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
+							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products",
@@ -1644,14 +1742,13 @@
 									"    var response_obj = pm.response.json();",
 									"    product = response_obj.product;",
 									"    pm.expect(product.productId.length).to.eql(36);",
-									"    pm.expect(product.retailer).to.eql(\"amazon\");",
+									"    pm.expect(product.retailer).to.eql(\"amazon.co.uk\");",
 									"    pm.expect(product.brand).to.eql(\"BABYBJÖRN\");",
 									"    pm.expect(product.details).to.eql(\"Travel Cot Easy Go, Anthracite, with transport bag\");",
 									"    pm.expect(product.imageUrl).to.eql(\"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\");",
 									"    pm.expect(product.productUrl).to.eql(\"https://www.amazon.co.uk/dp/B01H24LM58\");",
 									"",
-									"    states = response_obj.test_environment_states;",
-									"    pm.expect(states.staging).to.exist;",
+									"    pm.expect(response_obj.test_environment_states).to.exist;",
 									"});",
 									""
 								],
@@ -1737,7 +1834,7 @@
 									"",
 									"pm.test(\"The returned object should contain success\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData['updated']).to.eql(true);",
+									"    pm.expect(jsonData['test']).to.exist;",
 									"});",
 									""
 								],
@@ -1775,7 +1872,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"Amazon\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
+							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/{{p_product_id}}",
@@ -1912,6 +2009,201 @@
 							""
 						]
 					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Check tests",
+			"item": [
+				{
+					"name": "get details John Lewis",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "711972ea-cd8a-4115-a502-51dbf9384556",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"The returned object should contain the correct details\", function () {",
+									"    var product_obj = pm.response.json();",
+									"    pm.expect(product_obj.retailer).to.eql(\"johnlewis.com\");",
+									"    pm.expect(product_obj.brand).to.eql(\"Gaia Baby\");",
+									"    pm.expect(product_obj.details).to.eql(\"Serena Nursing Rocking Chair, Oat\");",
+									"    pm.expect(product_obj.imageUrl).to.eql(\"https://johnlewis.scene7.com/is/image/JohnLewis/238364338?$rsp-pdp-port-1440$\");",
+									"    pm.expect(product_obj.price).to.eql(\"399.99\");",
+									"    pm.expect(product_obj.availability).to.eql(\"InStock\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "d2286197-bdf4-4fce-bba8-f430cfcc329b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/check/details/https%3A%2F%2Fwww.johnlewis.com%2Fgaia-baby-serena-nursing-rocking-chair-oat%2Fp4797478",
+							"protocol": "https",
+							"host": [
+								"{{tools_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"tools",
+								"check",
+								"details",
+								"https%3A%2F%2Fwww.johnlewis.com%2Fgaia-baby-serena-nursing-rocking-chair-oat%2Fp4797478"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "get details low probability",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f69e4369-5f6f-446f-a7d9-18bf216db650",
+								"exec": [
+									"pm.test(\"response is 500\", function () {",
+									"    pm.response.to.have.status(500);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     pm.response.to.be.error;",
+									"     ",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response message should exist\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var message = jsonData['error'];",
+									"    pm.expect(message).to.eql('API Query returned with too low probability.');",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "12b90cf9-2bf4-4bb1-8ae0-2b5e33d3b9d7",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/check/details/https%3A%2F%2Fwww.thewhitecompany.com%2Fuk%2FTrain-Print-Sleeping-Bag---2-5-Tog%2Fp%2Ftrain-print-sleeping-bag%3Fswatch%3DWhite",
+							"protocol": "https",
+							"host": [
+								"{{tools_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"tools",
+								"check",
+								"details",
+								"https%3A%2F%2Fwww.thewhitecompany.com%2Fuk%2FTrain-Print-Sleeping-Bag---2-5-Tog%2Fp%2Ftrain-print-sleeping-bag%3Fswatch%3DWhite"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}

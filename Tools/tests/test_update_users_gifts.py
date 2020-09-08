@@ -174,7 +174,7 @@ class TestPutProductInProductsTable:
         products_item = {
             "brand": {'S': "John Lewis"},
             "details": {'S': "John Lewis & Partners Safari Mobile"},
-            "retailer": {'S': "John Lewis"},
+            "retailer": {'S': "johnlewis.com"},
             "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"},
             "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}
         }
@@ -193,7 +193,7 @@ class TestPutProductInProductsTable:
         product_item = test_response['Items'][0]
         assert product_item['brand']['S'] == "John Lewis"
         assert product_item['details']['S'] == "John Lewis & Partners Safari Mobile"
-        assert product_item['retailer']['S'] == "John Lewis"
+        assert product_item['retailer']['S'] == "johnlewis.com"
         assert product_item['imageUrl']['S'] == "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"
         assert product_item['productUrl']['S'] == "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"
 
@@ -210,14 +210,14 @@ class TestBuildProductsItem:
         new_product_details = {
             "brand": "John Lewis",
             "details": "John Lewis & Partners Safari Mobile",
-            "retailer": "John Lewis",
+            "retailer": "johnlewis.com",
             "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"
         }
 
         expected_products_item = {
             "brand": {'S': "John Lewis"},
             "details": {'S': "John Lewis & Partners Safari Mobile"},
-            "retailer": {'S': "John Lewis"},
+            "retailer": {'S': "johnlewis.com"},
             "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"},
             "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}
         }
@@ -236,7 +236,7 @@ class TestBuildProductsItem:
         new_product_details = {
             "brand": "John Lewis",
             "details": "John Lewis & Partners Safari Mobile",
-            "retailer": "John Lewis",
+            "retailer": "johnlewis.com",
             "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$",
             "productUrl": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=abcdefg",
             "price": "30.99"
@@ -245,7 +245,7 @@ class TestBuildProductsItem:
         expected_products_item = {
             "brand": {'S': "John Lewis"},
             "details": {'S': "John Lewis & Partners Safari Mobile"},
-            "retailer": {'S': "John Lewis"},
+            "retailer": {'S': "johnlewis.com"},
             "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"},
             "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=abcdefg"},
             "price": {'S': "30.99"}
@@ -299,7 +299,7 @@ class TestHandler:
 
         assert products_added['productId']['S'] == lists_added[0]['SK']['S'].split('#')[1]
 
-        expected_products_item = {"brand": {'S': "John Lewis"}, "details": {'S': "John Lewis & Partners Safari Mobile"}, "retailer": {'S': "John Lewis"}, "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=123456"}, "price": {'S': "20.99"}}
+        expected_products_item = {"brand": {'S': "John Lewis"}, "details": {'S': "John Lewis & Partners Safari Mobile"}, "retailer": {'S': "johnlewis.com"}, "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=123456"}, "price": {'S': "20.99"}}
         del products_added['productId']
         assert products_added == expected_products_item
 
