@@ -946,23 +946,23 @@ Resources:
                         Fn::ImportValue:
                           !Sub "ProductsTable-${Environment}"
 
-  Default400GatewayResponse:
-    Type: AWS::ApiGateway::GatewayResponse
-    Properties:
-        ResponseParameters:
-            gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-            gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
-        ResponseType: DEFAULT_4XX
-        RestApiId: !Ref Api
-
-  Default500GatewayResponse:
-    Type: AWS::ApiGateway::GatewayResponse
-    Properties:
-        ResponseParameters:
-            gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-            gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
-        ResponseType: DEFAULT_5XX
-        RestApiId: !Ref Api
+  # Default400GatewayResponse:
+  #   Type: AWS::ApiGateway::GatewayResponse
+  #   Properties:
+  #       ResponseParameters:
+  #           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  #           gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+  #       ResponseType: DEFAULT_4XX
+  #       RestApiId: !Ref Api
+  #
+  # Default500GatewayResponse:
+  #   Type: AWS::ApiGateway::GatewayResponse
+  #   Properties:
+  #       ResponseParameters:
+  #           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+  #           gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+  #       ResponseType: DEFAULT_5XX
+  #       RestApiId: !Ref Api
 
 Outputs:
   ApiUrl:

@@ -135,11 +135,15 @@ def call_api(url, key):
 
 
 def post_request(url, key):
-    response = requests.post(
-        'https://autoextract.scrapinghub.com/v1/extract',
-        auth=(key, ''),
-        json=[{'url': url, 'pageType': 'product'}],
-        timeout=50,
-    )
+    try:
+        response = requests.post(
+            'https://autoextract.scrapinghub.com/v1/extract',
+            auth=(key, ''),
+            json=[{'url': url, 'pageType': 'product'}],
+            timeout=45
+        )
+    except Exception as e:
+        log.error("Exception caught when posting request.")
+        raise Exception(e)
 
     return response.json()
