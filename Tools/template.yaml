@@ -33,6 +33,18 @@ Parameters:
   EmailAddress:
     Type : 'AWS::SSM::Parameter::Value<String>'
     Default: /Ewelists/AlertEmail
+  ListsTable:
+    Description: List table name prefix.
+    Default: lists
+    Type: String
+  NotFoundTable:
+    Description: NotFound table name prefix.
+    Default: notfound
+    Type: String
+  ProductsTable:
+    Description: Products table name prefix.
+    Default: products
+    Type: String
 
 
 Conditions:
@@ -87,11 +99,11 @@ Resources:
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-staging"
                       -
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test/*"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-staging"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/lists-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/lists-test/*"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/notfound-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/products-test"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/staging:1}}:table/products-staging"
 
 
   AddProductDetailsFunction:
@@ -106,15 +118,9 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-${Environment}"
-          NOTFOUND_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "NotFoundTable-${Environment}"
-          LISTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ListsTable-${Environment}"
+          PRODUCTS_TABLE_NAME: !Sub "${ProductsTable}-${Environment}"
+          NOTFOUND_TABLE_NAME: !Sub "${NotFoundTable}-${Environment}"
+          LISTS_TABLE_NAME: !Sub "${ListsTable}-${Environment}"
       Events:
         CreateProduct:
           Type: Api
@@ -135,9 +141,7 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          NOTFOUND_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "NotFoundTable-${Environment}"
+          NOTFOUND_TABLE_NAME: !Sub "${NotFoundTable}-${Environment}"
       Events:
         GetCount:
           Type: Api
@@ -158,9 +162,7 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          NOTFOUND_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "NotFoundTable-${Environment}"
+          NOTFOUND_TABLE_NAME: !Sub "${NotFoundTable}-${Environment}"
       Events:
         GetProducts:
           Type: Api
@@ -181,12 +183,8 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          NOTFOUND_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "NotFoundTable-${Environment}"
-          LISTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ListsTable-${Environment}"
+          NOTFOUND_TABLE_NAME: !Sub "${NotFoundTable}-${Environment}"
+          LISTS_TABLE_NAME: !Sub "${ListsTable}-${Environment}"
       Events:
         GetProducts:
           Type: Api
@@ -207,12 +205,9 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TEST_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-test
-          PRODUCTS_STAGING_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-staging
-          PRODUCTS_PROD_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-prod
+          PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
+          PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
+          PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
       Events:
         CreateProduct:
           Type: Api
@@ -233,9 +228,7 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-${Environment}"
+          PRODUCTS_TABLE_NAME: !Sub "${ProductsTable}-${Environment}"
       Events:
         GetProducts:
           Type: Api
@@ -256,12 +249,9 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TEST_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-test
-          PRODUCTS_STAGING_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-staging
-          PRODUCTS_PROD_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-prod
+          PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
+          PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
+          PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
       Events:
         GetProducts:
           Type: Api
@@ -282,12 +272,9 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
-          PRODUCTS_TEST_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-test
-          PRODUCTS_STAGING_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-staging
-          PRODUCTS_PROD_TABLE_NAME:
-            Fn::ImportValue: ProductsTable-prod
+          PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
+          PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
+          PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
           PRIMARY_ENVIRONMENT:
             !If [Prod, 'prod',
               !If [Staging, 'staging', 'test']
@@ -647,9 +634,7 @@ Resources:
       Role: !GetAtt NotFoundCheckFunctionRole.Arn
       Environment:
         Variables:
-          NOTFOUND_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "NotFoundTable-${Environment}"
+          NOTFOUND_TABLE_NAME: !Sub "${NotFoundTable}-${Environment}"
           TOPIC_ARN: !Ref NotFoundCheckAlertTopic
       Events:
         CheckItemsScheduledEvent:
@@ -739,9 +724,7 @@ Resources:
                 Resource:
                   - !Sub
                     - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
-                    - tablename:
-                        Fn::ImportValue:
-                          !Sub "NotFoundTable-${Environment}"
+                    - tablename: !Sub "${NotFoundTable}-${Environment}"
               - Effect: Allow
                 Action:
                   - 'sns:publish'
@@ -762,12 +745,8 @@ Resources:
       Environment:
         Variables:
           RETENTION_DAYS: "7"
-          PRODUCTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ProductsTable-${Environment}"
-          LISTS_TABLE_NAME:
-            Fn::ImportValue:
-              !Sub "ListsTable-${Environment}"
+          PRODUCTS_TABLE_NAME: !Sub "${ProductsTable}-${Environment}"
+          LISTS_TABLE_NAME: !Sub "${ListsTable}-${Environment}"
       Events:
         BackupsScheduleEvent:
           Type: Schedule
@@ -846,14 +825,10 @@ Resources:
                 Resource:
                   - !Sub
                     - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
-                    - tablename:
-                        Fn::ImportValue:
-                          !Sub "ListsTable-${Environment}"
+                    - tablename: !Sub "${ListsTable}-${Environment}"
                   - !Sub
                     - "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${tablename}*"
-                    - tablename:
-                        Fn::ImportValue:
-                          !Sub "ProductsTable-${Environment}"
+                    - tablename: !Sub "${ProductsTable}-${Environment}"
 
   # Default400GatewayResponse:
   #   Type: AWS::ApiGateway::GatewayResponse
