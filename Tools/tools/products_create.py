@@ -1,6 +1,5 @@
 import json
 import os
-import boto3
 import time
 import uuid
 from tools import common, logger
@@ -8,11 +7,11 @@ from botocore.exceptions import ClientError
 
 log = logger.setup_logger()
 
-dynamodb = boto3.client('dynamodb')
-
 
 def handler(event, context):
     try:
+        env = common.get_env_variable(os.environ, 'ENVIRONMENT')
+
         tables = {
             'test': common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'),
             'staging': common.get_env_variable(os.environ, 'PRODUCTS_STAGING_TABLE_NAME'),
@@ -29,7 +28,7 @@ def handler(event, context):
         response = common.create_response(500, json.dumps({'error': str(e)}))
         return response
 
-    results, errors = update_tables(tables, environments_to_update, product)
+    results, errors = update_tables(tables, environments_to_update, product, env)
     data = {'productId': product_id}
 
     for result in results:
@@ -44,14 +43,14 @@ def handler(event, context):
     return response
 
 
-def update_tables(tables, environments_to_update, product):
+def update_tables(tables, environments_to_update, product, env):
     results = {}
     errors = False
 
     for environment in environments_to_update:
         table = tables[environment]
         try:
-            put_product(table, product)
+            put_product(table, product, env)
             results[environment] = "Success:" + product['productId']['S']
         except Exception as e:
             results[environment] = "Failed:" + str(e)
@@ -60,7 +59,9 @@ def update_tables(tables, environments_to_update, product):
     return results, errors
 
 
-def put_product(table_name, product):
+def put_product(table_name, product, env):
+    dynamodb = common.get_dynamodb_client(table_name, env)
+
     try:
         log.info("Product item to be put in table: {}".format(product))
         dynamodb.put_item(TableName=table_name, Item=product)

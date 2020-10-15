@@ -16,6 +16,7 @@ def environments(monkeypatch):
     monkeypatch.setitem(os.environ, 'PRODUCTS_TEST_TABLE_NAME', PRODUCTS_TEST_TABLE)
     monkeypatch.setitem(os.environ, 'PRODUCTS_STAGING_TABLE_NAME', PRODUCTS_STAGING_TABLE)
     monkeypatch.setitem(os.environ, 'PRODUCTS_PROD_TABLE_NAME', PRODUCTS_PROD_TABLE)
+    monkeypatch.setitem(os.environ, 'ENVIRONMENT', 'unittest')
 
     return monkeypatch
 
@@ -63,6 +64,7 @@ class TestHandler:
         monkeypatch.setitem(os.environ, 'PRODUCTS_TEST_TABLE_NAME', PRODUCTS_TEST_TABLE)
         monkeypatch.setitem(os.environ, 'PRODUCTS_STAGING_TABLE_NAME', 'products-mis2-unittest')
         monkeypatch.setitem(os.environ, 'PRODUCTS_PROD_TABLE_NAME', PRODUCTS_PROD_TABLE)
+        monkeypatch.setitem(os.environ, 'ENVIRONMENT', 'unittest')
 
         response = products_create.handler(api_product_create_event, None)
         assert response['statusCode'] == 500
@@ -162,7 +164,7 @@ class TestUpdateTables:
             "price": {'S': "120.99"}
         }
 
-        results, errors = products_create.update_tables(tables, environments_to_update, product)
+        results, errors = products_create.update_tables(tables, environments_to_update, product, 'unittest')
         assert results['test'].split(":")[0] == "Success"
         assert len(results['test'].split(":")[1]) == 36
         assert not errors, "Errors boolean should be false"
@@ -170,7 +172,7 @@ class TestUpdateTables:
     def test_update_to_staging_failed(self, products_all_environments):
         tables = {
             'test': PRODUCTS_TEST_TABLE,
-            'staging': 'bad_staging_table',
+            'staging': 'unittest_stag',
             'prod': PRODUCTS_PROD_TABLE
         }
 
@@ -186,11 +188,11 @@ class TestUpdateTables:
             "price": {'S': "120.99"}
         }
 
-        results, errors = products_create.update_tables(tables, environments_to_update, product)
+        results, errors = products_create.update_tables(tables, environments_to_update, product, 'unittest')
         assert errors, "Errors boolean was not true"
 
         assert results['test'].split(":")[0] == "Success"
         assert len(results['test'].split(":")[1]) == 36
 
         assert results['staging'].split(":")[0] == "Failed"
-        assert results['staging'].split(":")[1] == "Product could not be created (bad_staging_table)."
+        assert results['staging'].split(":")[1] == "Product could not be created (unittest_stag)."

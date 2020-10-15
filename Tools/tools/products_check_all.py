@@ -1,18 +1,17 @@
 import json
 import os
-import boto3
 from tools import common, logger
 from tools.common_entities import Product
 from botocore.exceptions import ClientError
 
 log = logger.setup_logger()
 
-dynamodb = boto3.client('dynamodb')
-
 
 def handler(event, context):
     try:
         id = common.get_path_id(event)
+
+        env = common.get_env_variable(os.environ, 'ENVIRONMENT')
 
         primary_env = common.get_env_variable(os.environ, 'PRIMARY_ENVIRONMENT')
         update_envs = common.get_env_variable(os.environ, 'UPDATE_ENVIRONMENTS')
@@ -27,11 +26,11 @@ def handler(event, context):
         primary_table, secondary_tables = split_tables(all_tables, primary_env, update_envs)
 
         # Step 2: Search primary table for object.
-        product = get_item(primary_table, id)
+        product = get_item(primary_table, id, env)
         data = {"product": product}
 
         # Step 3: Search secondary environments for object and confirm if exist and if identical.
-        check_results = check_environments(secondary_tables, product.copy())
+        check_results = check_environments(secondary_tables, product.copy(), env)
         data["test_environment_states"] = check_results
 
         response = common.create_response(200, json.dumps(data))
@@ -54,7 +53,7 @@ def split_tables(tables, primary_env, update_envs):
     return primary_table, update_tables
 
 
-def check_environments(tables, product):
+def check_environments(tables, product, env):
     results = {}
 
     product.pop('priceCheckedDate', None)
@@ -62,7 +61,7 @@ def check_environments(tables, product):
     for environment in tables:
         table = tables[environment]
         try:
-            env_product = get_item(table, product['productId'])
+            env_product = get_item(table, product['productId'], env)
             env_product.pop('priceCheckedDate', None)
 
             if env_product == product:
@@ -78,8 +77,9 @@ def check_environments(tables, product):
     return results
 
 
-def get_item(table_name, id):
-    log.info("Querying table for product id: {}".format(id))
+def get_item(table_name, id, env):
+    log.info("Querying table {} for product id: {}".format(table_name, id))
+    dynamodb = common.get_dynamodb_client(table_name, env)
 
     key = {'productId': {'S': id}}
 

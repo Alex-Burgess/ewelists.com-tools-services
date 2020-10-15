@@ -1,5 +1,6 @@
 # A collection of methods that are common across all modules.
 import json
+import boto3
 from datetime import datetime
 from tools import logger
 
@@ -95,3 +96,32 @@ def check_environments(event):
     log.info("Environments to update are: {}.".format(environments))
 
     return environments
+
+
+def get_dynamodb_client(table_name, env):
+    if env == 'unittest':
+        return boto3.client('dynamodb')
+    elif env not in table_name:
+        log.info("Cross account role required to connect to table in different account.")
+
+        sts_connection = boto3.client('sts')
+        acct_b = sts_connection.assume_role(
+            RoleArn="arn:aws:iam::?????????:role/Tools-Test-Exection-Role",
+            RoleSessionName="cross_acct_lambda"
+        )
+
+        ACCESS_KEY = acct_b['Credentials']['AccessKeyId']
+        SECRET_KEY = acct_b['Credentials']['SecretAccessKey']
+        SESSION_TOKEN = acct_b['Credentials']['SessionToken']
+
+        # create service client using the assumed role credentials, e.g. S3
+        client = boto3.client(
+            'dynamodb',
+            aws_access_key_id=ACCESS_KEY,
+            aws_secret_access_key=SECRET_KEY,
+            aws_session_token=SESSION_TOKEN,
+        )
+
+        return client
+    else:
+        return boto3.client('dynamodb')

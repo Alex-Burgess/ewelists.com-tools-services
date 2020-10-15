@@ -105,7 +105,6 @@ Resources:
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/products-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/staging:1}}:table/products-staging"
 
-
   AddProductDetailsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -205,6 +204,7 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
+          ENVIRONMENT: !Ref Environment
           PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
           PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
           PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
@@ -249,6 +249,7 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
+          ENVIRONMENT: !Ref Environment
           PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
           PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
           PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
@@ -272,6 +273,7 @@ Resources:
       Role: !GetAtt FunctionRole.Arn
       Environment:
         Variables:
+          ENVIRONMENT: !Ref Environment
           PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
           PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
           PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"

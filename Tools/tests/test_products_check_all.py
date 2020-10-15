@@ -17,6 +17,7 @@ def environments(monkeypatch):
     monkeypatch.setitem(os.environ, 'PRODUCTS_PROD_TABLE_NAME', PRODUCTS_PROD_TABLE)
     monkeypatch.setitem(os.environ, 'PRIMARY_ENVIRONMENT', 'prod')
     monkeypatch.setitem(os.environ, 'UPDATE_ENVIRONMENTS', 'test,staging')
+    monkeypatch.setitem(os.environ, 'ENVIRONMENT', 'unittest')
 
     return monkeypatch
 
@@ -153,7 +154,7 @@ class TestSplitTables:
 
 class TestCheckEnvironments:
     def test_check_all_environments_in_sync(self, products_all_environments, tables, product):
-        results = products_check_all.check_environments(tables, product)
+        results = products_check_all.check_environments(tables, product, 'unittest')
 
         assert results == {
             "staging": "IN SYNC",
@@ -163,7 +164,7 @@ class TestCheckEnvironments:
     def test_product_not_in_sync(self, products_all_environments, tables, product):
         product['price'] = "100.00"
 
-        results = products_check_all.check_environments(tables, product)
+        results = products_check_all.check_environments(tables, product, 'unittest')
 
         assert results == {
             "staging": "NOT IN SYNC",
@@ -173,7 +174,7 @@ class TestCheckEnvironments:
     def test_product_does_not_exist(self, products_all_environments, tables, product):
         product['productId'] = "12345678-prod-1111-1234-abcdefghijkl"
 
-        results = products_check_all.check_environments(tables, product)
+        results = products_check_all.check_environments(tables, product, 'unittest')
 
         assert results == {
             "staging": "DOES NOT EXIST",
@@ -184,5 +185,5 @@ class TestCheckEnvironments:
         tables = {'test': 'products-test-unittest-bad'}
 
         with pytest.raises(Exception) as e:
-            products_check_all.check_environments(tables, product)
+            products_check_all.check_environments(tables, product, 'unittest')
         assert str(e.value) == "Unexpected problem getting product from table.", "Exception not as expected."

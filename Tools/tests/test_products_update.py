@@ -15,6 +15,7 @@ def environments(monkeypatch):
     monkeypatch.setitem(os.environ, 'PRODUCTS_TEST_TABLE_NAME', PRODUCTS_TEST_TABLE)
     monkeypatch.setitem(os.environ, 'PRODUCTS_STAGING_TABLE_NAME', PRODUCTS_STAGING_TABLE)
     monkeypatch.setitem(os.environ, 'PRODUCTS_PROD_TABLE_NAME', PRODUCTS_PROD_TABLE)
+    monkeypatch.setitem(os.environ, 'ENVIRONMENT', 'unittest')
 
     return monkeypatch
 
@@ -95,7 +96,7 @@ class TestMakeChanges:
         id = "12345678-prod-0010-1234-abcdefghijkl"
         product['price'] = '100.00'
 
-        error, results = products_update.make_changes(tables, environments_to_update, id, product)
+        error, results = products_update.make_changes(tables, environments_to_update, id, product, 'unittest')
         assert not error, "No error was expected."
         assert results == {
             'test': 'Updated: 12345678-prod-0010-1234-abcdefghijkl',
@@ -108,7 +109,7 @@ class TestMakeChanges:
         id = "12345678-prod-0010-1234-abcdefghijkl"
         product['price'] = '100.00'
 
-        error, results = products_update.make_changes(tables, environments_to_update, id, product)
+        error, results = products_update.make_changes(tables, environments_to_update, id, product, 'unittest')
         assert not error, "No error was expected."
         assert results == {
             'test': 'Created: 12345678-prod-0010-1234-abcdefghijkl',
@@ -120,7 +121,7 @@ class TestMakeChanges:
         environments_to_update = ['test']
         id = "12345678-prod-0010-1234-abcdefghijkl"
 
-        error, results = products_update.make_changes(tables, environments_to_update, id, product)
+        error, results = products_update.make_changes(tables, environments_to_update, id, product, 'unittest')
         assert not error, "No error was expected."
         assert results == {
             'test': 'Created: 12345678-prod-0010-1234-abcdefghijkl'
@@ -136,7 +137,7 @@ class TestMakeChanges:
         id = "12345678-prod-0010-1234-abcdefghijkl"
         product['price'] = '100.00'
 
-        error, results = products_update.make_changes(tables, environments_to_update, id, product)
+        error, results = products_update.make_changes(tables, environments_to_update, id, product, 'unittest')
         assert error, "An error was expected."
         assert results == {
             'test': 'Failed: Unexpected error when updating',

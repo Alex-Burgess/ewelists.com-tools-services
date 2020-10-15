@@ -1,17 +1,16 @@
 import json
 import os
-import boto3
 import time
 from tools import common, logger
 from botocore.exceptions import ClientError
 
 log = logger.setup_logger()
 
-dynamodb = boto3.client('dynamodb')
-
 
 def handler(event, context):
     try:
+        env = common.get_env_variable(os.environ, 'ENVIRONMENT')
+
         tables = {
             'test': common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'),
             'staging': common.get_env_variable(os.environ, 'PRODUCTS_STAGING_TABLE_NAME'),
@@ -23,7 +22,7 @@ def handler(event, context):
         id = common.get_path_id(event)
         product = common.new_product_details(event)
 
-        error, data = make_changes(tables, environments_to_update, id, product)
+        error, data = make_changes(tables, environments_to_update, id, product, env)
 
         if error:
             response = common.create_response(500, json.dumps(data))
@@ -37,19 +36,19 @@ def handler(event, context):
     return response
 
 
-def make_changes(tables, environments_to_update, id, product):
+def make_changes(tables, environments_to_update, id, product, env):
     results = {}
     error = False
 
     for env in environments_to_update:
         try:
             table = tables[env]
-            exists = get_product(table, id)
+            exists = get_product(table, id, env)
             if exists:
-                update_product(table, id, product)
+                update_product(table, id, product, env)
                 results[env] = "Updated: " + id
             else:
-                put_product(table, id, product)
+                put_product(table, id, product, env)
                 results[env] = "Created: " + id
         except Exception as e:
             log.error("Exception: {}".format(e))
@@ -59,8 +58,9 @@ def make_changes(tables, environments_to_update, id, product):
     return error, results
 
 
-def get_product(table_name, id):
+def get_product(table_name, id, env):
     log.info("Querying table for product id: {}".format(id))
+    dynamodb = common.get_dynamodb_client(table_name, env)
 
     key = {'productId': {'S': id}}
 
@@ -81,7 +81,9 @@ def get_product(table_name, id):
     return True
 
 
-def update_product(table_name, id, new_product):
+def update_product(table_name, id, new_product, env):
+    dynamodb = common.get_dynamodb_client(table_name, env)
+
     try:
         log.info("Product item to be put in table: {}".format(new_product))
         response = dynamodb.update_item(
@@ -108,7 +110,9 @@ def update_product(table_name, id, new_product):
     return True
 
 
-def put_product(table_name, id, product):
+def put_product(table_name, id, product, env):
+    dynamodb = common.get_dynamodb_client(table_name, env)
+
     create_object = product_details(product, id)
     try:
         log.info("Product item to be put in table: {}".format(product))
