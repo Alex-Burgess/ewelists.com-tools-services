@@ -9,6 +9,7 @@ log = logger.setup_logger()
 
 
 def handler(event, context):
+    log.info("Event: {}".format(json.dumps(event)))
     try:
         env = common.get_env_variable(os.environ, 'ENVIRONMENT')
 

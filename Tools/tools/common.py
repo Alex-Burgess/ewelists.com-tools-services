@@ -102,7 +102,7 @@ def get_dynamodb_client(table_name, env):
     if env == 'unittest':
         return boto3.client('dynamodb')
     elif env not in table_name:
-        log.info("Cross account role required to connect to table in different account.")
+        log.info("Cross account role required to connect to table in different account. Environment: {} Table: {}.".format(env, table_name))
 
         sts_connection = boto3.client('sts')
         acct_b = sts_connection.assume_role(
