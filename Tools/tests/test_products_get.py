@@ -4,7 +4,7 @@ from tools import products_get, logger
 
 log = logger.setup_test_logger()
 
-PRODUCTS_TABLE = 'products-unittest'
+PRODUCTS_TABLE = 'products-unit'
 
 
 class TestHandler:

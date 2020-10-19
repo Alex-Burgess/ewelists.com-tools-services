@@ -3,15 +3,19 @@ import os
 import time
 import uuid
 from tools import common, logger
-from botocore.exceptions import ClientError
 
 log = logger.setup_logger()
 
 
 def handler(event, context):
-    log.info("Event: {}".format(json.dumps(event)))
     try:
         env = common.get_env_variable(os.environ, 'ENVIRONMENT')
+        role_prefix = common.get_env_variable(os.environ, 'CROSS_ACCOUNT_ROLE')
+        account_ids = {
+            common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'): common.get_env_variable(os.environ, 'ACCOUNT_ID_TEST'),
+            common.get_env_variable(os.environ, 'PRODUCTS_STAGING_TABLE_NAME'): common.get_env_variable(os.environ, 'ACCOUNT_ID_STAGING'),
+            common.get_env_variable(os.environ, 'PRODUCTS_PROD_TABLE_NAME'): common.get_env_variable(os.environ, 'ACCOUNT_ID_PROD')
+        }
 
         tables = {
             'test': common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'),
@@ -29,7 +33,7 @@ def handler(event, context):
         response = common.create_response(500, json.dumps({'error': str(e)}))
         return response
 
-    results, errors = update_tables(tables, environments_to_update, product, env)
+    results, errors = update_tables(tables, account_ids, role_prefix, env, environments_to_update, product)
     data = {'productId': product_id}
 
     for result in results:
@@ -44,14 +48,14 @@ def handler(event, context):
     return response
 
 
-def update_tables(tables, environments_to_update, product, env):
+def update_tables(tables, account_ids, role_prefix, env, environments_to_update, product):
     results = {}
     errors = False
 
     for environment in environments_to_update:
         table = tables[environment]
         try:
-            put_product(table, product, env)
+            put_product(table, account_ids, role_prefix, env, product)
             results[environment] = "Success:" + product['productId']['S']
         except Exception as e:
             results[environment] = "Failed:" + str(e)
@@ -60,13 +64,13 @@ def update_tables(tables, environments_to_update, product, env):
     return results, errors
 
 
-def put_product(table_name, product, env):
-    dynamodb = common.get_dynamodb_client(table_name, env)
+def put_product(table_name, account_ids, role_prefix, env, product):
+    log.info("Putting product item to table ({}): {}".format(table_name, product))
 
     try:
-        log.info("Product item to be put in table: {}".format(product))
+        dynamodb = common.get_dynamodb_client(table_name, account_ids, role_prefix, env)
         dynamodb.put_item(TableName=table_name, Item=product)
-    except ClientError as e:
+    except Exception as e:
         log.error("Product could not be created ({}): {}".format(table_name, e))
         raise Exception("Product could not be created ({}).".format(table_name))
 

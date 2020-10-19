@@ -45,6 +45,10 @@ Parameters:
     Description: Products table name prefix.
     Default: products
     Type: String
+  CrossAccountRole:
+    Description: Prefix for role that allows lambda function to execute dynamodb tasks against a table in another environments account.
+    Default: Tools-Service-Cross-Account-Exection-Role
+    Type: String
 
 
 Conditions:
@@ -84,26 +88,41 @@ Resources:
                   !If
                     - Prod
                     -
-                      - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-*"
-                      - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-*"
-                      - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-*"
+                      - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/prod:1}}:table/lists-prod*"
+                      - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/prod:1}}:table/lists-prod/*"
+                      - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/prod:1}}:table/notfound-prod"
+                      - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/prod:1}}:table/products-prod"
                     - !If
                       - Staging
                       -
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-test/*"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-staging*"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-staging/*"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-staging"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-staging"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/staging:1}}:table/lists-staging*"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/staging:1}}:table/lists-staging/*"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/staging:1}}:table/notfound-staging"
+                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/staging:1}}:table/products-staging"
                       -
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/lists-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/lists-test/*"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/notfound-test"
                         - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/dev:1}}:table/products-test"
-                        - !Sub "arn:aws:dynamodb:${AWS::Region}:{{resolve:ssm:/accounts/staging:1}}:table/products-staging"
+        - PolicyName: AssumeCrossAccountExecutionRolePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource:
+                  !If
+                    - Prod
+                    -
+                      - !Sub "arn:aws:iam::{{resolve:ssm:/accounts/dev:1}}:role/${CrossAccountRole}-prod"
+                      - !Sub "arn:aws:iam::{{resolve:ssm:/accounts/staging:1}}:role/${CrossAccountRole}-prod"
+                    - !If
+                      - Staging
+                      -
+                        - !Sub "arn:aws:iam::{{resolve:ssm:/accounts/dev:1}}:role/${CrossAccountRole}-staging"
+                      -
+                        - !Sub "arn:aws:iam::{{resolve:ssm:/accounts/staging:1}}:role/${CrossAccountRole}-test"
 
   AddProductDetailsFunction:
     Type: AWS::Serverless::Function
@@ -208,6 +227,10 @@ Resources:
           PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
           PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
           PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
+          ACCOUNT_ID_PROD: '{{resolve:ssm:/accounts/prod:1}}'
+          ACCOUNT_ID_STAGING: '{{resolve:ssm:/accounts/staging:1}}'
+          ACCOUNT_ID_TEST: '{{resolve:ssm:/accounts/dev:1}}'
+          CROSS_ACCOUNT_ROLE: !Ref CrossAccountRole
       Events:
         CreateProduct:
           Type: Api
@@ -292,7 +315,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /tools/products/check/{id}
             Method: GET
-
 
   Api:
     Type: AWS::Serverless::Api

@@ -6,9 +6,9 @@ from tools import update_users_gifts, logger
 
 log = logger.setup_test_logger()
 
-LISTS_TABLE = 'lists-unittest'
-NOTFOUND_TABLE = 'notfound-unittest'
-PRODUCTS_TABLE = 'products-unittest'
+LISTS_TABLE = 'lists-unit'
+NOTFOUND_TABLE = 'notfound-unit'
+PRODUCTS_TABLE = 'products-unit'
 
 
 class TestAddToResponseData:

@@ -4,9 +4,9 @@ import pytest
 import boto3
 from moto import mock_dynamodb2, mock_ssm
 
-LISTS_TABLE = 'lists-unittest'
-NOTFOUND_TABLE = 'notfound-unittest'
-PRODUCTS_TABLE = 'products-unittest'
+LISTS_TABLE = 'lists-unit'
+NOTFOUND_TABLE = 'notfound-unit'
+PRODUCTS_TABLE = 'products-unit'
 
 
 @pytest.fixture
@@ -28,7 +28,7 @@ def dynamodb_mock():
 
         # Create lists table
         table = dynamodb.create_table(
-            TableName='lists-unittest',
+            TableName='lists-unit',
             KeySchema=[{'AttributeName': 'PK', 'KeyType': 'HASH'}, {'AttributeName': 'SK', 'KeyType': 'RANGE'}],
             AttributeDefinitions=[
                 {'AttributeName': 'PK', 'AttributeType': 'S'},
@@ -70,10 +70,10 @@ def dynamodb_mock():
             ]
         )
 
-        items = load_test_data(LISTS_TABLE + '.json')
+        items = load_test_data(LISTS_TABLE + 'test.json')
 
         for item in items:
-            table.put_item(TableName='lists-unittest', Item=item)
+            table.put_item(TableName='lists-unit', Item=item)
 
         # Create notfound table
         table = dynamodb.create_table(
@@ -83,7 +83,7 @@ def dynamodb_mock():
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(NOTFOUND_TABLE + '.json')
+        items = load_test_data(NOTFOUND_TABLE + 'test.json')
 
         for item in items:
             table.put_item(TableName=NOTFOUND_TABLE, Item=item)
@@ -97,7 +97,7 @@ def dynamodb_mock():
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(PRODUCTS_TABLE + '.json')
+        items = load_test_data(PRODUCTS_TABLE + 'test.json')
 
         for item in items:
             table.put_item(TableName=PRODUCTS_TABLE, Item=item)
@@ -133,7 +133,7 @@ def notfound_mock():
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(NOTFOUND_TABLE + '.json')
+        items = load_test_data(NOTFOUND_TABLE + 'test.json')
 
         for item in items:
             table.put_item(TableName=NOTFOUND_TABLE, Item=item)
@@ -168,7 +168,7 @@ def products_mock():
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(PRODUCTS_TABLE + '.json')
+        items = load_test_data(PRODUCTS_TABLE + 'test.json')
 
         for item in items:
             table.put_item(TableName=PRODUCTS_TABLE, Item=item)
@@ -183,42 +183,42 @@ def products_all_environments():
 
         # Create test table
         table = dynamodb.create_table(
-            TableName='products-test-unittest',
+            TableName='products-test-unit',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(PRODUCTS_TABLE + '.json')
+        items = load_test_data(PRODUCTS_TABLE + 'test.json')
 
         for item in items:
-            table.put_item(TableName='products-test-unittest', Item=item)
+            table.put_item(TableName='products-test-unit', Item=item)
 
         # Create staging table
         table = dynamodb.create_table(
-            TableName='products-staging-unittest',
+            TableName='products-staging-unit',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(PRODUCTS_TABLE + '.json')
+        items = load_test_data(PRODUCTS_TABLE + 'test.json')
 
         for item in items:
-            table.put_item(TableName='products-staging-unittest', Item=item)
+            table.put_item(TableName='products-staging-unit', Item=item)
 
         # Create prod table
         table = dynamodb.create_table(
-            TableName='products-prod-unittest',
+            TableName='products-prod-unit',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(PRODUCTS_TABLE + '.json')
+        items = load_test_data(PRODUCTS_TABLE + 'test.json')
 
         for item in items:
-            table.put_item(TableName='products-prod-unittest', Item=item)
+            table.put_item(TableName='products-prod-unit', Item=item)
         # End of products
 
         yield
@@ -231,7 +231,7 @@ def products_all_envs_with_bad_data():
 
         # Create test table - empty
         table = dynamodb.create_table(
-            TableName='products-test-unittest',
+            TableName='products-test-unit',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
@@ -239,7 +239,7 @@ def products_all_envs_with_bad_data():
 
         # Create staging table - not in sync
         table = dynamodb.create_table(
-            TableName='products-staging-unittest',
+            TableName='products-staging-unit',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
@@ -248,20 +248,20 @@ def products_all_envs_with_bad_data():
         items = [{"productId": "12345678-prod-0010-1234-abcdefghijkl", "brand": "John Lewis & Partners", "retailer": "johnlewis.com", "price": "100.00", "priceCheckedDate": "2020-08-27 16:00:00", "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White", "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352", "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$"}]
 
         for item in items:
-            table.put_item(TableName='products-staging-unittest', Item=item)
+            table.put_item(TableName='products-staging-unit', Item=item)
 
         # Create prod table
         table = dynamodb.create_table(
-            TableName='products-prod-unittest',
+            TableName='products-prod-unit',
             KeySchema=[{'AttributeName': 'productId', 'KeyType': 'HASH'}],
             AttributeDefinitions=[{'AttributeName': 'productId', 'AttributeType': 'S'}],
             ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
         )
 
-        items = load_test_data(PRODUCTS_TABLE + '.json')
+        items = load_test_data(PRODUCTS_TABLE + 'test.json')
 
         for item in items:
-            table.put_item(TableName='products-prod-unittest', Item=item)
+            table.put_item(TableName='products-prod-unit', Item=item)
         # End of products
 
         yield
@@ -276,6 +276,15 @@ def load_test_data(name):
         for row in f:
             items.append(json.loads(row))
     return items
+
+
+@pytest.fixture
+def accounts():
+    return {
+        "products-test-unit": "111111111111",
+        "products-staging-unit": "222222222222",
+        "products-prod-unit": "33333333333"
+    }
 
 
 def api_event():

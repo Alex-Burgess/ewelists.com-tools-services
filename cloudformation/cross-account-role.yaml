@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates role used by tools application lambda functions to assume when updating a table in another environment.
+
+Parameters:
+  RoleName:
+    Description: Prefix for role that allows lambda function to execute dynamodb tasks against a table in another environments account.
+    Default: Tools-Service-Cross-Account-Exection-Role
+    Type: String
+  FunctionEnvironment:
+    Description: Environment that function runs in and will assume role.
+    Default: test
+    Type: String
+    AllowedValues:
+      - prod
+      - staging
+      - test
+  RoleEnvironment:
+    Description: Environment that function runs in and will assume role.
+    Default: staging
+    Type: String
+    AllowedValues:
+      - staging
+      - test
+
+Resources:
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${RoleName}-${FunctionEnvironment}'
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            AWS:
+              - !Sub "arn:aws:iam::{{resolve:ssm:/accounts/${FunctionEnvironment}:1}}:role/tools-${FunctionEnvironment}-Api-Role"
+          Action:
+            - sts:AssumeRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: TablePermissions
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:UpdateItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:DeleteItem'
+                Resource:
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-${RoleEnvironment}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/lists-${RoleEnvironment}/*"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/notfound-${RoleEnvironment}"
+                  - !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/products-${RoleEnvironment}"

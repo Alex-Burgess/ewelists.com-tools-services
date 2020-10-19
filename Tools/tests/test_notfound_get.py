@@ -4,8 +4,8 @@ from tools import notfound_get, logger
 
 log = logger.setup_test_logger()
 
-NOTFOUND_TABLE = 'notfound-unittest'
-LISTS_TABLE = 'lists-unittest'
+NOTFOUND_TABLE = 'notfound-unit'
+LISTS_TABLE = 'lists-unit'
 
 
 class TestHandler:

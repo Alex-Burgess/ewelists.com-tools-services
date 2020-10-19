@@ -3,6 +3,7 @@ import json
 import boto3
 from datetime import datetime
 from tools import logger
+from botocore.exceptions import ClientError
 
 log = logger.setup_logger()
 
@@ -65,13 +66,13 @@ def new_product_details(event):
     except Exception:
         raise Exception('API Event body did not exist.')
 
-    log.info("Product details from body: " + json.dumps(product))
-
     for key in expected_keys:
         if key in body:
             product[key] = body[key]
         else:
             raise Exception('API Event body did not contain the ' + key + '.')
+
+    log.info("Product details from body: " + json.dumps(product))
 
     return product
 
@@ -98,30 +99,33 @@ def check_environments(event):
     return environments
 
 
-def get_dynamodb_client(table_name, env):
-    if env == 'unittest':
-        return boto3.client('dynamodb')
-    elif env not in table_name:
+def get_dynamodb_client(table_name, account_ids, role_prefix, env):
+    if env not in table_name:
         log.info("Cross account role required to connect to table in different account. Environment: {} Table: {}.".format(env, table_name))
+        role_arn = "arn:aws:iam::" + account_ids[table_name] + ":role/Tools-Service-Cross-Account-Exection-Role" + "-" + env
 
-        sts_connection = boto3.client('sts')
-        acct_b = sts_connection.assume_role(
-            RoleArn="arn:aws:iam::?????????:role/Tools-Test-Exection-Role",
-            RoleSessionName="cross_acct_lambda"
-        )
+        try:
+            sts_connection = boto3.client('sts')
+            acct_b = sts_connection.assume_role(
+                RoleArn=role_arn,
+                RoleSessionName="cross_acct_lambda"
+            )
 
-        ACCESS_KEY = acct_b['Credentials']['AccessKeyId']
-        SECRET_KEY = acct_b['Credentials']['SecretAccessKey']
-        SESSION_TOKEN = acct_b['Credentials']['SessionToken']
+            ACCESS_KEY = acct_b['Credentials']['AccessKeyId']
+            SECRET_KEY = acct_b['Credentials']['SecretAccessKey']
+            SESSION_TOKEN = acct_b['Credentials']['SessionToken']
 
-        # create service client using the assumed role credentials, e.g. S3
-        client = boto3.client(
-            'dynamodb',
-            aws_access_key_id=ACCESS_KEY,
-            aws_secret_access_key=SECRET_KEY,
-            aws_session_token=SESSION_TOKEN,
-        )
+            # create service client using the assumed role credentials, e.g. S3
+            client = boto3.client(
+                'dynamodb',
+                aws_access_key_id=ACCESS_KEY,
+                aws_secret_access_key=SECRET_KEY,
+                aws_session_token=SESSION_TOKEN,
+            )
 
-        return client
+            return client
+        except ClientError as e:
+            raise Exception("Error assuming role ({}): {}".format(role_arn, e))
     else:
+        log.info("Returning simple dynamodb client. Environment: {} Table: {}.".format(env, table_name))
         return boto3.client('dynamodb')

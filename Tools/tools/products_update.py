@@ -10,6 +10,12 @@ log = logger.setup_logger()
 def handler(event, context):
     try:
         env = common.get_env_variable(os.environ, 'ENVIRONMENT')
+        role_prefix = common.get_env_variable(os.environ, 'CROSS_ACCOUNT_ROLE')
+        account_ids = {
+            common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'): common.get_env_variable(os.environ, 'ACCOUNT_ID_TEST'),
+            common.get_env_variable(os.environ, 'PRODUCTS_STAGING_TABLE_NAME'): common.get_env_variable(os.environ, 'ACCOUNT_ID_STAGING'),
+            common.get_env_variable(os.environ, 'PRODUCTS_PROD_TABLE_NAME'): common.get_env_variable(os.environ, 'ACCOUNT_ID_PROD')
+        }
 
         tables = {
             'test': common.get_env_variable(os.environ, 'PRODUCTS_TEST_TABLE_NAME'),
@@ -22,7 +28,8 @@ def handler(event, context):
         id = common.get_path_id(event)
         product = common.new_product_details(event)
 
-        error, data = make_changes(tables, environments_to_update, id, product, env)
+        # error, data = make_changes(tables, environments_to_update, id, product, env)
+        error, data = make_changes(tables, account_ids, role_prefix, env, environments_to_update, id, product)
 
         if error:
             response = common.create_response(500, json.dumps(data))
@@ -36,35 +43,34 @@ def handler(event, context):
     return response
 
 
-def make_changes(tables, environments_to_update, id, product, env):
+def make_changes(tables, account_ids, role_prefix, env, environments_to_update, id, product):
     results = {}
     error = False
 
-    for env in environments_to_update:
+    for env_to_update in environments_to_update:
         try:
-            table = tables[env]
-            exists = get_product(table, id, env)
+            table = tables[env_to_update]
+            exists = get_product(table, account_ids, role_prefix, env, id)
             if exists:
-                update_product(table, id, product, env)
-                results[env] = "Updated: " + id
+                update_product(table, account_ids, role_prefix, env, id, product)
+                results[env_to_update] = "Updated: " + id
             else:
-                put_product(table, id, product, env)
-                results[env] = "Created: " + id
+                put_product(table, account_ids, role_prefix, env, id, product)
+                results[env_to_update] = "Created: " + id
         except Exception as e:
             log.error("Exception: {}".format(e))
-            results[env] = "Failed: Unexpected error when updating"
+            results[env_to_update] = "Failed: Unexpected error when updating"
             error = True
 
     return error, results
 
 
-def get_product(table_name, id, env):
+def get_product(table_name, account_ids, role_prefix, env, id):
     log.info("Querying table for product id: {}".format(id))
-    dynamodb = common.get_dynamodb_client(table_name, env)
-
     key = {'productId': {'S': id}}
 
     try:
+        dynamodb = common.get_dynamodb_client(table_name, account_ids, role_prefix, env)
         response = dynamodb.get_item(
             TableName=table_name,
             Key=key
@@ -81,11 +87,10 @@ def get_product(table_name, id, env):
     return True
 
 
-def update_product(table_name, id, new_product, env):
-    dynamodb = common.get_dynamodb_client(table_name, env)
-
+def update_product(table_name, account_ids, role_prefix, env, id, new_product):
     try:
         log.info("Product item to be put in table: {}".format(new_product))
+        dynamodb = common.get_dynamodb_client(table_name, account_ids, role_prefix, env)
         response = dynamodb.update_item(
             TableName=table_name,
             Key={'productId': {'S': id}},
@@ -110,12 +115,11 @@ def update_product(table_name, id, new_product, env):
     return True
 
 
-def put_product(table_name, id, product, env):
-    dynamodb = common.get_dynamodb_client(table_name, env)
-
+def put_product(table_name, account_ids, role_prefix, env, id, product):
     create_object = product_details(product, id)
     try:
         log.info("Product item to be put in table: {}".format(product))
+        dynamodb = common.get_dynamodb_client(table_name, account_ids, role_prefix, env)
         dynamodb.put_item(TableName=table_name, Item=create_object)
     except ClientError as e:
         log.error("Product could not be created ({}): {}".format(table_name, e))

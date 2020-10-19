@@ -4,7 +4,7 @@ from tools import notfound_count, logger
 
 log = logger.setup_test_logger()
 
-NOTFOUND_TABLE = 'notfound-unittest'
+NOTFOUND_TABLE = 'notfound-unit'
 
 
 class TestHandler:

@@ -7,7 +7,7 @@ from tools import notfound_check, logger
 
 log = logger.setup_test_logger()
 
-NOTFOUND_TABLE = 'notfound-unittest'
+NOTFOUND_TABLE = 'notfound-unit'
 
 
 @mock.patch("tools.notfound_check.send_msg", mock.MagicMock(return_value=True))
