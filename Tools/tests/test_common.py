@@ -192,3 +192,18 @@ class TestCheckEnvironments:
 
         environments = common.check_environments(api_product_create_event)
         assert environments == ['test', 'staging', 'prod'], "Environments array not as expected."
+
+
+class TestCrossAccountRoleRequired:
+    def test_not_required(self):
+        assert not common.cross_account_role_required('products-test-unit', 'test')
+        assert not common.cross_account_role_required('products-staging-unit', 'staging')
+        assert not common.cross_account_role_required('products-prod-unit', 'prod')
+
+    def test_required(self):
+        assert common.cross_account_role_required('products-test-unit', 'staging')
+        assert common.cross_account_role_required('products-test-unit', 'prod')
+        assert common.cross_account_role_required('products-staging-unit', 'test')
+        assert common.cross_account_role_required('products-staging-unit', 'test')
+        assert common.cross_account_role_required('products-prod-unit', 'test')
+        assert common.cross_account_role_required('products-prod-unit', 'staging')

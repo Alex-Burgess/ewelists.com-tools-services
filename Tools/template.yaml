@@ -276,6 +276,10 @@ Resources:
           PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
           PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
           PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
+          ACCOUNT_ID_PROD: '{{resolve:ssm:/accounts/prod:1}}'
+          ACCOUNT_ID_STAGING: '{{resolve:ssm:/accounts/staging:1}}'
+          ACCOUNT_ID_TEST: '{{resolve:ssm:/accounts/dev:1}}'
+          CROSS_ACCOUNT_ROLE: !Ref CrossAccountRole
       Events:
         GetProducts:
           Type: Api
@@ -300,6 +304,10 @@ Resources:
           PRODUCTS_TEST_TABLE_NAME: !Sub "${ProductsTable}-test"
           PRODUCTS_STAGING_TABLE_NAME: !Sub "${ProductsTable}-staging"
           PRODUCTS_PROD_TABLE_NAME: !Sub "${ProductsTable}-prod"
+          ACCOUNT_ID_PROD: '{{resolve:ssm:/accounts/prod:1}}'
+          ACCOUNT_ID_STAGING: '{{resolve:ssm:/accounts/staging:1}}'
+          ACCOUNT_ID_TEST: '{{resolve:ssm:/accounts/dev:1}}'
+          CROSS_ACCOUNT_ROLE: !Ref CrossAccountRole
           PRIMARY_ENVIRONMENT:
             !If [Prod, 'prod',
               !If [Staging, 'staging', 'test']

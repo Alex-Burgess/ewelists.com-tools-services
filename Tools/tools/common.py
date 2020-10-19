@@ -99,8 +99,17 @@ def check_environments(event):
     return environments
 
 
-def get_dynamodb_client(table_name, account_ids, role_prefix, env):
+def cross_account_role_required(table_name, env):
+    env = '-' + env
+
     if env not in table_name:
+        return True
+    else:
+        return False
+
+
+def get_dynamodb_client(table_name, account_ids, role_prefix, env):
+    if cross_account_role_required(table_name, env):
         log.info("Cross account role required to connect to table in different account. Environment: {} Table: {}.".format(env, table_name))
         role_arn = "arn:aws:iam::" + account_ids[table_name] + ":role/Tools-Service-Cross-Account-Exection-Role" + "-" + env
 

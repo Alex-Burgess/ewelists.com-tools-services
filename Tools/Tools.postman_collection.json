@@ -1606,7 +1606,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
+							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Travel Cot Easy Go, Anthracite, with transport bag\",\n    \"price\": \"120.99\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B01H24LM58\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": {{create_test}},\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products",
@@ -1834,7 +1834,8 @@
 									"",
 									"pm.test(\"The returned object should contain success\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData['test']).to.exist;",
+									"    const environment = pm.environment.get(\"env\");",
+									"    pm.expect(jsonData[environment]).to.exist;",
 									"});",
 									""
 								],
@@ -1872,7 +1873,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": \"{{create_test}}\",\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
+							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": {{create_test}},\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/{{p_product_id}}",

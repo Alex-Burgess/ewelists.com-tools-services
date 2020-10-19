@@ -96,6 +96,28 @@ class TestHandler:
             'prod': 'Updated: 12345678-prod-0010-1234-abcdefghijkl'
         }, "Results object was not as expected."
 
+    def test_update_only_test(self, api_product_update_event, environments, products_all_environments):
+        api_product_update_event['body'] = json.dumps({
+            "brand": "John Lewis & Partners",
+            "retailer": "johnlewis.com",
+            "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White",
+            "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$",
+            "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352",
+            "price": "100.00",
+            "test": True,
+            "staging": False,
+            "prod": False
+        })
+
+        response = products_update.handler(api_product_update_event, None)
+        assert response['statusCode'] == 200
+        assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+
+        body = json.loads(response['body'])
+        assert body == {
+            'test': 'Updated: 12345678-prod-0010-1234-abcdefghijkl'
+        }, "Results object was not as expected."
+
 
 @mock.patch("tools.common.get_dynamodb_client", mock.MagicMock(return_value=boto3.client('dynamodb')))
 class TestMakeChanges:
