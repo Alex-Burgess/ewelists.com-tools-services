@@ -389,6 +389,26 @@ def api_update_users_gifts_event():
 
 
 @pytest.fixture
+def api_update_users_gifts_event_2():
+    event = api_event()
+    event['resource'] = "/tools/notfound/{id}"
+    event['path'] = "/tools/notfound/12345678-notf-0010-1234-abcdefghijkl"
+    event['httpMethod'] = "POST"
+    event['pathParameters'] = {"id": "12345678-notf-0010-1234-abcdefghijkl"}
+    event['body'] = json.dumps({
+        "brand": "John Lewis",
+        "details": "John Lewis & Partners Safari Mobile",
+        "retailer": "johnlewis.com",
+        "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$",
+        "productUrl": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=123456",
+        "price": "20.99",
+        "searchHidden": True
+    })
+
+    return event
+
+
+@pytest.fixture
 def api_product_create_event():
     event = api_event()
     event['resource'] = "/tools/products"
@@ -421,6 +441,17 @@ def api_products_get_event():
 
 
 @pytest.fixture
+def api_products_get_event_2():
+    event = api_event()
+    event['resource'] = "/tools/products/{id}"
+    event['path'] = "/tools/products/12345678-prod-0011-1234-abcdefghijkl"
+    event['httpMethod'] = "GET"
+    event['pathParameters'] = {"id": "12345678-prod-0011-1234-abcdefghijkl"}
+
+    return event
+
+
+@pytest.fixture
 def api_product_check_all_event():
     event = api_event()
     event['resource'] = "/tools/products/check/{id}"
@@ -446,6 +477,7 @@ def api_product_update_event():
         "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$",
         "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352",
         "price": "100.00",
+        "searchHidden": False,
         "test": True,
         "staging": True,
         "prod": True
@@ -499,6 +531,21 @@ def api_no_path_id_event():
 def api_product_body_event():
     event = api_event()
     event['body'] = "{\n    \"brand\": \"Brand1\",\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"bigshop.com\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\",\n    \"productUrl\": \"https://example.com/product123456\",\n    \"price\": \"19.99\"\n}"
+    return event
+
+
+@pytest.fixture
+def api_product_body_event_2():
+    event = api_event()
+    event['body'] = json.dumps({
+        "brand": "Brand1",
+        "details": "A travel cot, black",
+        "retailer": "bigshop.com",
+        "imageUrl": "https://example.com/images/product1.jpg",
+        "productUrl": "https://example.com/product123456",
+        "price": "19.99",
+        "searchHidden": True
+    })
     return event
 
 

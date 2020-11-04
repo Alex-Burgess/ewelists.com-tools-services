@@ -780,6 +780,609 @@
 			"protocolProfileBehavior": {}
 		},
 		{
+			"name": "Update users gift with search hidden",
+			"item": [
+				{
+					"name": "create list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bee426e6-2732-49bf-925b-ec64c35347e5",
+								"exec": [
+									"pm.test(\"Add variable for new List ID\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    listId = jsonData[\"listId\"];",
+									"    pm.environment.set(\"list_id\", listId);",
+									"});",
+									"",
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"A list Id should be returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var listId = jsonData['listId'];",
+									"    pm.expect(listId.length).to.eql(36);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"My Birthday List\",\n    \"description\": \"A gift wish list for my birthday.\",\n    \"eventDate\": \"20 December 2020\",\n    \"occasion\": \"Birthday\",\n    \"imageUrl\": \"/images/celebration-default.jpg\"\n}"
+						},
+						"url": {
+							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists",
+							"protocol": "https",
+							"host": [
+								"{{lists_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"lists"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "create notfound product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "3175d553-2c89-430f-8006-5c0e6fb33063",
+								"exec": [
+									"pm.test(\"Add variable for new Product ID\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    productId = jsonData[\"productId\"];",
+									"    pm.environment.set(\"nf_product_id\", productId);",
+									"});",
+									"",
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"A list Id should be returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var productId = jsonData['productId'];",
+									"    pm.expect(productId.length).to.eql(36);",
+									"});",
+									"",
+									"pm.test(\"Response message should be created\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var message = jsonData['message'];",
+									"    pm.expect(message).to.eql('success');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Baby Carrier\",\n    \"url\": \"https://www.amazon.co.uk/dp/B0792ZS2GP\"\n}"
+						},
+						"url": {
+							"raw": "https://{{notfound_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/notfound",
+							"protocol": "https",
+							"host": [
+								"{{notfound_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"notfound"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "add product to list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b11683f6-faea-4502-a807-4b1009288989",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response message should be created\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var message = jsonData['message'];",
+									"    pm.expect(message).to.eql(true);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1eb60432-647f-425f-b869-65c741f1e348",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quantity\": 1,\n    \"productType\": \"notfound\"\n}"
+						},
+						"url": {
+							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists/{{list_id}}/product/{{nf_product_id}}",
+							"protocol": "https",
+							"host": [
+								"{{lists_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"lists",
+								"{{list_id}}",
+								"product",
+								"{{nf_product_id}}"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "update product details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "aa65ea11-c8e3-4a93-968f-1acf6ae16f3c",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Product should be created\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData['products-product-created_succeeded']['brand']['S']).to.eql(\"BABYBJÖRN\");",
+									"    pm.expect(jsonData['products-product-created_succeeded']['details']['S']).to.eql(\"Baby Carrier One, Cotton Mix, Denim Grey/Dark Grey\");",
+									"    pm.expect(jsonData['products-product-created_succeeded']['retailer']['S']).to.eql(\"amazon.co.uk\");",
+									"    pm.expect(jsonData['products-product-created_succeeded']['price']['S']).to.eql(\"100.00\");",
+									"    pm.expect(jsonData['products-product-created_succeeded']['imageUrl']['S']).to.eql(\"//ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0792ZS2GP&Format=_SL250_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=ewelists-21&language=en_GB\");",
+									"    pm.expect(jsonData['products-product-created_succeeded']['productUrl']['S']).to.eql(\"https://www.amazon.co.uk/dp/B0792ZS2GP/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=ewelists-21&linkId=00f788f132fc05940f26eb7f88a48a7c&language=en_GB\");",
+									"    pm.expect(jsonData['products-product-created_succeeded']['searchHidden']['BOOL']).to.eql(true);",
+									"});",
+									"",
+									"",
+									"pm.test(\"NotFound product should be deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData['notfound-product-deleted_succeeded']['brand']['S']).to.eql(\"BABYBJÖRN\");",
+									"    pm.expect(jsonData['notfound-product-deleted_succeeded']['details']['S']).to.eql(\"Baby Carrier\");",
+									"    pm.expect(jsonData['notfound-product-deleted_succeeded']['productUrl']['S']).to.eql(\"https://www.amazon.co.uk/dp/B0792ZS2GP\");",
+									"});",
+									"",
+									"pm.test(\"Product should be deleted from list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData['lists-notfound-deleted_succeeded'].length).to.eql(1);",
+									"});",
+									"",
+									"pm.test(\"Product should be added to list\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData['lists-products-added_succeeded'].length).to.eql(1);",
+									"});",
+									"",
+									"pm.test(\"Product IDs should match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var products_added = jsonData['products-product-created_succeeded']",
+									"    var products_added_id = 'PRODUCT#' + products_added['productId']['S']",
+									"    var lists_products_added = jsonData['lists-products-added_succeeded'][0]",
+									"    pm.expect(products_added_id).to.eql(lists_products_added['SK']['S']);",
+									"});",
+									"",
+									"pm.test(\"Add variable for new Product ID\", function() {",
+									"    var jsonData = pm.response.json();",
+									"    var products_added = jsonData['products-product-created_succeeded']",
+									"    var products_added_id = products_added['productId']['S']",
+									"    pm.environment.set(\"p_product_id\", products_added_id);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Baby Carrier One, Cotton Mix, Denim Grey/Dark Grey\",\n    \"retailer\": \"amazon.co.uk\",\n    \"imageUrl\": \"//ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0792ZS2GP&Format=_SL250_&ID=AsinImage&MarketPlace=GB&ServiceVersion=20070822&WS=1&tag=ewelists-21&language=en_GB\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/B0792ZS2GP/ref=as_li_ss_il?ie=UTF8&linkCode=li3&tag=ewelists-21&linkId=00f788f132fc05940f26eb7f88a48a7c&language=en_GB\",\n    \"searchHidden\": true\n}"
+						},
+						"url": {
+							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/notfound/{{nf_product_id}}",
+							"protocol": "https",
+							"host": [
+								"{{tools_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"tools",
+								"notfound",
+								"{{nf_product_id}}"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "delete list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "fe25187d-62e5-4620-8a34-bd996b25bd67",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response should confirm deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var deletedBool = jsonData['deleted'];",
+									"    pm.expect(deletedBool).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response should have a delete count\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var count = jsonData['count'];",
+									"    pm.expect(count).to.eql(2);",
+									"});",
+									"",
+									"pm.test(\"Clear environment variable\", function() {",
+									"    pm.environment.unset(\"list_id\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e19e8fab-1811-4ad0-8290-7e89ac3d29de",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists/{{list_id}}",
+							"protocol": "https",
+							"host": [
+								"{{lists_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"lists",
+								"{{list_id}}"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "delete product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b4f35903-661c-4146-8f26-be313acf03d4",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response should confirm deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var deletedBool = jsonData['deleted'];",
+									"    pm.expect(deletedBool).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Clear environment variable\", function() {",
+									"    pm.environment.unset(\"p_product_id\")",
+									"    pm.environment.unset(\"nf_product_id\")",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1f664b20-c46f-4be4-9ed2-903ecb2744d8",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{products_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/products/{{p_product_id}}",
+							"protocol": "https",
+							"host": [
+								"{{products_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"products",
+								"{{p_product_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
 			"name": "Notfound tests",
 			"item": [
 				{
@@ -1873,7 +2476,97 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"test\": {{create_test}},\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
+							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"searchHidden\": true,\n    \"test\": {{create_test}},\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
+						},
+						"url": {
+							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/{{p_product_id}}",
+							"protocol": "https",
+							"host": [
+								"{{tools_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"tools",
+								"products",
+								"{{p_product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get product with search hidden flag",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b78fa4c1-982c-43a7-b652-d2cc1647a524",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"The returned object should contain the correct product details\", function () {",
+									"    var product_obj = pm.response.json();",
+									"    pm.expect(product_obj.productId.length).to.eql(36);",
+									"    pm.expect(product_obj.retailer).to.eql(\"amazon.co.uk\");",
+									"    pm.expect(product_obj.brand).to.eql(\"BABYBJÖRN\");",
+									"    pm.expect(product_obj.details).to.eql(\"Updated\");",
+									"    pm.expect(product_obj.imageUrl).to.eql(\"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\");",
+									"    pm.expect(product_obj.productUrl).to.eql(\"https://www.amazon.co.uk/dp/1234567890\");",
+									"    pm.expect(product_obj.searchHidden).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/{{p_product_id}}",

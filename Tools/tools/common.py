@@ -72,6 +72,13 @@ def new_product_details(event):
         else:
             raise Exception('API Event body did not contain the ' + key + '.')
 
+    # Optional parameters
+    if 'searchHidden' in body:
+        product['searchHidden'] = body['searchHidden']
+
+    if 'userNotes' in body:
+        product['userNotes'] = body['userNotes']
+
     log.info("Product details from body: " + json.dumps(product))
 
     return product

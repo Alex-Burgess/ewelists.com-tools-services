@@ -38,3 +38,23 @@ class TestHandler:
             "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352",
             "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$"
         }, "Product object not correct."
+
+    def test_product_exists_with_search_hidden_flag(self, api_products_get_event_2, monkeypatch, products_mock):
+        monkeypatch.setitem(os.environ, 'PRODUCTS_TABLE_NAME', PRODUCTS_TABLE)
+
+        response = products_get.handler(api_products_get_event_2, None)
+        assert response['statusCode'] == 200
+        assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+
+        body = json.loads(response['body'])
+        assert body == {
+            "productId": "12345678-prod-0011-1234-abcdefghijkl",
+            "brand": "John Lewis & Partners",
+            "retailer": "johnlewis.com",
+            "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White",
+            "price": "9.00",
+            "priceCheckedDate": "2020-08-27 16:00:00",
+            "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352",
+            "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$",
+            "searchHidden": True
+        }, "Product object not correct."

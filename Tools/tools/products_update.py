@@ -94,7 +94,7 @@ def update_product(table_name, account_ids, role_prefix, env, id, new_product):
         response = dynamodb.update_item(
             TableName=table_name,
             Key={'productId': {'S': id}},
-            UpdateExpression="set retailer = :r, brand = :b, details = :d, price = :p, productUrl = :u, imageUrl = :i, priceCheckedDate = :c",
+            UpdateExpression="set retailer = :r, brand = :b, details = :d, price = :p, productUrl = :u, imageUrl = :i, priceCheckedDate = :c, searchHidden = :s",
             ExpressionAttributeValues={
                 ':r': {'S': new_product["retailer"]},
                 ':b': {'S': new_product["brand"]},
@@ -102,6 +102,7 @@ def update_product(table_name, account_ids, role_prefix, env, id, new_product):
                 ':p': {'S': new_product["price"]},
                 ':u': {'S': new_product["productUrl"]},
                 ':i': {'S': new_product["imageUrl"]},
+                ':s': {'BOOL': new_product["searchHidden"]},
                 ':c': {'S': common.currentTimestamp()}
             },
             ReturnValues="UPDATED_NEW"
@@ -139,6 +140,7 @@ def product_details(product, id):
             'priceCheckedDate': {'S': common.currentTimestamp()},
             'productUrl': {'S': product['productUrl']},
             'imageUrl': {'S': product['imageUrl']},
+            'searchHidden': {'BOOL': product['searchHidden']},
             'createdAt': {'N': str(int(time.time()))}
         }
     except Exception:

@@ -43,6 +43,19 @@ class TestGetProductDetails:
         }
         assert product == expected_product, "Product details were not as expected."
 
+    def test_new_product_details_with_search_hidden_flag(self, api_product_body_event_2):
+        product = common.new_product_details(api_product_body_event_2)
+        expected_product = {
+            "brand": "Brand1",
+            "details": "A travel cot, black",
+            "retailer": "bigshop.com",
+            "imageUrl": "https://example.com/images/product1.jpg",
+            "productUrl": "https://example.com/product123456",
+            "price": "19.99",
+            "searchHidden": True
+        }
+        assert product == expected_product, "Product details were not as expected."
+
     def test_no_brand_in_body(self, api_product_body_event):
         api_product_body_event['body'] = "{\n    \"details\": \"A travel cot, black\",\n    \"retailer\": \"bigshop.com\",\n    \"imageUrl\": \"https://example.com/images/product1.jpg\"\n}"
         with pytest.raises(Exception) as e:

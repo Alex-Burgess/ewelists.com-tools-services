@@ -258,4 +258,7 @@ def build_products_item(notfound_product, new_product_details):
     else:
         product['productUrl'] = {'S': notfound_product['productUrl']['S']}
 
+    if 'searchHidden' in new_product_details:
+        product['searchHidden'] = {'BOOL': new_product_details['searchHidden']}
+
     return product

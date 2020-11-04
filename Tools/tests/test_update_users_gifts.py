@@ -254,6 +254,37 @@ class TestBuildProductsItem:
         item = update_users_gifts.build_products_item(notfound_product, new_product_details)
         assert item == expected_products_item, "Products item was not as expected."
 
+    def test_build_item_with_search_hidden_flag(self):
+        notfound_product = {
+            "productId": {'S': "12345678-notf-0010-1234-abcdefghijkl"},
+            "brand": {'S': "JL"},
+            "details": {'S': "Safari Mobile"},
+            "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}
+        }
+
+        new_product_details = {
+            "brand": "John Lewis",
+            "details": "John Lewis & Partners Safari Mobile",
+            "retailer": "johnlewis.com",
+            "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$",
+            "productUrl": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=abcdefg",
+            "price": "30.99",
+            "searchHidden": True
+        }
+
+        expected_products_item = {
+            "brand": {'S': "John Lewis"},
+            "details": {'S': "John Lewis & Partners Safari Mobile"},
+            "retailer": {'S': "johnlewis.com"},
+            "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"},
+            "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=abcdefg"},
+            "price": {'S': "30.99"},
+            "searchHidden": {'BOOL': True}
+        }
+
+        item = update_users_gifts.build_products_item(notfound_product, new_product_details)
+        assert item == expected_products_item, "Products item was not as expected."
+
 
 class TestGetProductFromNotfound:
     def test_get_product(self, dynamodb_mock):
@@ -300,6 +331,32 @@ class TestHandler:
         assert products_added['productId']['S'] == lists_added[0]['SK']['S'].split('#')[1]
 
         expected_products_item = {"brand": {'S': "John Lewis"}, "details": {'S': "John Lewis & Partners Safari Mobile"}, "retailer": {'S': "johnlewis.com"}, "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=123456"}, "price": {'S': "20.99"}}
+        del products_added['productId']
+        assert products_added == expected_products_item
+
+        assert notfound_deleted == {"productId": {'S': "12345678-notf-0010-1234-abcdefghijkl"}, "brand": {'S': "JL"}, "details": {'S': "Safari Mobile"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}, 'createdBy': {'S': '12345678-user-0001-1234-abcdefghijkl'}}
+
+        assert len(lists_added) == 3
+        assert len(lists_deleted) == 3
+
+    def test_handler_search_hidding_flag(self, api_update_users_gifts_event_2, monkeypatch, dynamodb_mock):
+        monkeypatch.setitem(os.environ, 'PRODUCTS_TABLE_NAME', PRODUCTS_TABLE)
+        monkeypatch.setitem(os.environ, 'NOTFOUND_TABLE_NAME', NOTFOUND_TABLE)
+        monkeypatch.setitem(os.environ, 'LISTS_TABLE_NAME', LISTS_TABLE)
+
+        response = update_users_gifts.handler(api_update_users_gifts_event_2, None)
+        assert response['statusCode'] == 200
+        assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
+
+        body = json.loads(response['body'])
+        products_added = body['products-product-created_succeeded']
+        notfound_deleted = body['notfound-product-deleted_succeeded']
+        lists_deleted = body['lists-notfound-deleted_succeeded']
+        lists_added = body['lists-products-added_succeeded']
+
+        assert products_added['productId']['S'] == lists_added[0]['SK']['S'].split('#')[1]
+
+        expected_products_item = {"brand": {'S': "John Lewis"}, "details": {'S': "John Lewis & Partners Safari Mobile"}, "retailer": {'S': "johnlewis.com"}, "imageUrl": {'S': "https://johnlewis.scene7.com/is/image/JohnLewis/237244063?$rsp-pdp-port-640$"}, "productUrl": {'S': "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165?tagid=123456"}, "price": {'S': "20.99"}, "searchHidden": {'BOOL': True}}
         del products_added['productId']
         assert products_added == expected_products_item
 

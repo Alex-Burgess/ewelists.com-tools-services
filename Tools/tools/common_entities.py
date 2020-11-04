@@ -34,6 +34,8 @@ class Product:
         self.imageUrl = item.get('imageUrl').get('S')
         if item.get('priceCheckedDate'):
             self.priceCheckedDate = item.get('priceCheckedDate').get('S')
+        if item.get('searchHidden'):
+            self.searchHidden = item.get('searchHidden').get('BOOL')
 
     def __repr__(self):
         return "Product<{} -- {} -- {} -- {} -- {}>".format(self.productId, self.brand, self.details, self.productUrl, self.price)
@@ -51,5 +53,8 @@ class Product:
 
         if hasattr(self, 'priceCheckedDate'):
             product['priceCheckedDate'] = self.priceCheckedDate
+
+        if hasattr(self, 'searchHidden'):
+            product['searchHidden'] = self.searchHidden
 
         return product
