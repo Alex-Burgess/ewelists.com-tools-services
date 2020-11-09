@@ -579,6 +579,17 @@ def api_check_details_event():
 
 
 @pytest.fixture
+def api_query_metadata_event():
+    event = api_event()
+    event['resource'] = "/tools/query/metadata/{url}"
+    event['path'] = "/tools/query/metadata/https%3A%2F%2Fwww.thewhitecompany.com%2Fuk%2FSnowman-Knitted-Romper%2Fp%2FSNTOO"
+    event['httpMethod'] = "GET"
+    event['pathParameters'] = {"url": "https%3A%2F%2Fwww.thewhitecompany.com%2Fuk%2FSnowman-Knitted-Romper%2Fp%2FSNTOO"}
+
+    return event
+
+
+@pytest.fixture
 def scraping_hub_response():
     return {
         'query': {
@@ -633,4 +644,247 @@ def scraping_hub_response():
             'probability': 0.98316103,
             'aggregateRating': {'reviewCount': 6}
         }
+    }
+
+
+@pytest.fixture
+def metadata_response_wc():
+    return {
+      "og": {
+        "title": "Snowman Knitted Romper | Newborn & Unisex | The  White Company",
+        "description": "The perfect Christmas gift, our bestselling cosy knitted bodysuit has adorable pom-poms at the front to mimic a chilly snowman. With fastenings on the shoulder and leg openings, changing baby is easy. The bodysuit is footless with long sleeves and looks even cuter when paired with our novelty Snowman Hat for a complete outfit. Design & Fit \u2022 Long-sleeved romper \u2022 Pom-poms down the front \u2022 Button fastening on shoulder and legs \u2022 Pair with matching hat for full outfit Fabric & Care \u2022 100% cotton \u2022 Machine wash \u2022 Safety warning: keep away from fire See more: Newborn, The Little White Company",
+        "image": "https://whitecompany.scene7.com/is/image/whitecompany/Snowman-Knitted-Romper/SNTOO_15_MAIN_P?$D_PDP_412x525$",
+        "image:width": "200",
+        "image:height": "200",
+        "url": "https://www.thewhitecompany.com/uk/Snowman-Knitted-Romper/p/SNTOO?swatch=White",
+        "type": "product",
+        "locale": "en_GB",
+        "site_name": "The  White Company UK"
+      },
+      "meta": {
+        "description": "The perfect Christmas gift, our bestselling cosy knitted bodysuit has adorable pom-poms at the front to mimic a chilly snowman. With fastenings on the shoulder and leg openings, changing baby is easy. The bodysuit is footless with long sleeves and looks even cuter when paired with our novelty Snowman Hat for a complete outfit. Design & Fit \u2022 Long-sleeved romper \u2022 Pom-poms down the front \u2022 Button fastening on shoulder and legs \u2022 Pair with matching hat for full outfit Fabric & Care \u2022 100% cotton \u2022 Machine wash \u2022 Safety warning: keep away from fire See more: Newborn, The Little White Company",
+        "product:price:amount": "34.0",
+        "product:price:currency": "GBP",
+        "": [
+          "Snowman Knitted Romper | Newborn & Unisex | The  White Company",
+          "The perfect Christmas gift, our bestselling cosy knitted bodysuit has adorable pom-poms at the front to mimic a chilly snowman. With fastenings on the shoulder and leg openings, changing baby is easy. The bodysuit is footless with long sleeves and looks even cuter when paired with our novelty Snowman Hat for a complete outfit. Design & Fit \u2022 Long-sleeved romper \u2022 Pom-poms down the front \u2022 Button fastening on shoulder and legs \u2022 Pair with matching hat for full outfit Fabric & Care \u2022 100% cotton \u2022 Machine wash \u2022 Safety warning: keep away from fire See more: Newborn, The Little White Company",
+          "https://whitecompany.scene7.com/is/image/whitecompany/Snowman-Knitted-Romper/SNTOO_15_MAIN_P?$D_PDP_412x525$",
+          "200",
+          "https://www.thewhitecompany.com/uk/Snowman-Knitted-Romper/p/SNTOO?swatch=White",
+          "product",
+          "en_GB",
+          "The  White Company UK",
+          "1851456161814830"
+        ]
+      },
+      "dc": {},
+      "page": {
+        "title": "Snowman Knitted Romper | Newborn & Unisex | The  White Company UK",
+        "canonical": "https://www.thewhitecompany.com/uk/Snowman-Knitted-Romper/p/SNTOO"
+      }
+    }
+
+
+@pytest.fixture
+def metadata_response_jl():
+    return {
+      'og': {},
+      'meta': {
+        'description': 'Buy Aqua Mini Micro Deluxe Scooter, 2-5 years from our Wheeled Toys & Bikes range at John Lewis & Partners. Free Delivery on orders over £50.',
+        'og:image': 'https://johnlewis.scene7.com/is/image/JohnLewis/235862595?',
+        'og:type': 'product',
+        'og:title': 'Mini Micro Deluxe Scooter, 2-5 years, Aqua',
+        'og:locale': 'en_GB',
+        'og:image:type': 'image/jpeg',
+        'og:url': 'https://www.johnlewis.com/mini-micro-deluxe-scooter-2-5-years/aqua/p3567221',
+        'og:description': 'Buy Aqua Mini Micro Deluxe Scooter, 2-5 years from our Wheeled Toys & Bikes range at John Lewis & Partners. Free Delivery on orders over £50.',
+        'og:site-name': 'John Lewis'
+      },
+      'dc': {},
+      'page': {
+        'title': 'Mini Micro Deluxe Scooter, 2-5 years at John Lewis & Partners',
+        'canonical': 'https://www.johnlewis.com/mini-micro-deluxe-scooter-2-5-years/p3567221'
+      }
+    }
+
+
+@pytest.fixture
+def metadata_response_jojo():
+    return {
+      'og': {
+        'type': 'product',
+        'title': "Kids' Penguin Towelling Dressing Gown",
+        'image': 'https://www.jojomamanbebe.co.uk/media/catalog/product/cache/e8cfbc35dc14c111e189893c9b8f265c/h/1/h1182_e2883.jpg',
+        'description': '',
+        'url': 'https://www.jojomamanbebe.co.uk/kids-penguin-towelling-robe-h1182.html'
+        },
+      'meta': {
+        'title': "Kids' Penguin Towelling Bath Robe | JoJo Maman Bebe",
+        'description': "The Penguin Towelling Dressing Gown is an impossibly cute style that's both practical and fun to wear. Supersoft cotton terry is so cosy, making it useful for chilly mornings and nights. The hooded style makes it extra warm, and little ones will love the", 'keywords': 'JoJo Maman Bebe',
+        'og:type': 'product',
+        'og:title': "Kids' Penguin Towelling Dressing Gown",
+        'og:image': 'https://www.jojomamanbebe.co.uk/media/catalog/product/cache/e8cfbc35dc14c111e189893c9b8f265c/h/1/h1182_e2883.jpg',
+        'og:description': '',
+        'og:url': 'https://www.jojomamanbebe.co.uk/kids-penguin-towelling-robe-h1182.html',
+        'product:price:amount': '18',
+        'product:price:currency': 'GBP',
+      },
+      'dc': {},
+      'page': {
+        'title': "Kids' Penguin Towelling Bath Robe | JoJo Maman Bebe",
+        'canonical': 'https://www.jojomamanbebe.co.uk/kids-penguin-towelling-robe-h1182.html'
+      }
+    }
+
+
+@pytest.fixture
+def metadata_response_gltc():
+    return {
+      'og': {
+        'site_name': 'Great Little Trading Co.',
+        'url': 'https://www.gltc.co.uk/products/woodland-christmas-advent-calendar',
+        'title': 'Woodland Christmas Advent Calendar',
+        'type': 'product',
+        'description': "Designed in the UK, our Woodland Christmas Kids' Advent Calendar is a family heirloom in the making! Check out this wooden kids' advent calendar today at GLTC.",
+        'price:amount': '45.00',
+        'price:currency': 'GBP',
+        'image': [
+          'http://cdn.shopify.com/s/files/1/2341/5115/products/l4978_1_1200x1200.png?v=1603200782',
+          'http://cdn.shopify.com/s/files/1/2341/5115/products/l4978_2_1200x1200.jpg?v=1603214664',
+          'http://cdn.shopify.com/s/files/1/2341/5115/products/l4978_3_1200x1200.jpg?v=1603214599'
+        ],
+        'image:secure_url': [
+          'https://cdn.shopify.com/s/files/1/2341/5115/products/l4978_1_1200x1200.png?v=1603200782',
+          'https://cdn.shopify.com/s/files/1/2341/5115/products/l4978_2_1200x1200.jpg?v=1603214664',
+          'https://cdn.shopify.com/s/files/1/2341/5115/products/l4978_3_1200x1200.jpg?v=1603214599'
+        ]
+      },
+      'meta': {
+        'description': "Designed in the UK, our Woodland Christmas Kids' Advent Calendar is a family heirloom in the making! Check out this wooden kids' advent calendar today at GLTC.", 'og:site_name': 'Great Little Trading Co.',
+        'og:url': 'https://www.gltc.co.uk/products/woodland-christmas-advent-calendar',
+        'og:title': 'Woodland Christmas Advent Calendar',
+        'og:type': 'product',
+        'og:description': "Designed in the UK, our Woodland Christmas Kids' Advent Calendar is a family heirloom in the making! Check out this wooden kids' advent calendar today at GLTC.",
+        'og:price:amount': '45.00',
+        'og:price:currency': 'GBP',
+        'og:image': [
+          'http://cdn.shopify.com/s/files/1/2341/5115/products/l4978_1_1200x1200.png?v=1603200782',
+          'http://cdn.shopify.com/s/files/1/2341/5115/products/l4978_2_1200x1200.jpg?v=1603214664',
+          'http://cdn.shopify.com/s/files/1/2341/5115/products/l4978_3_1200x1200.jpg?v=1603214599'
+        ],
+        'og:image:secure_url': [
+          'https://cdn.shopify.com/s/files/1/2341/5115/products/l4978_1_1200x1200.png?v=1603200782',
+          'https://cdn.shopify.com/s/files/1/2341/5115/products/l4978_2_1200x1200.jpg?v=1603214664',
+          'https://cdn.shopify.com/s/files/1/2341/5115/products/l4978_3_1200x1200.jpg?v=1603214599'
+        ]
+      },
+      'dc': {},
+      'page': {
+        'title': "Kids' Christmas Advent Calendar | Great Little Trading Co.",
+        'canonical': 'https://www.gltc.co.uk/products/woodland-christmas-advent-calendar'
+      }
+    }
+
+
+@pytest.fixture
+def metadata_response_sb():
+    return {
+      'og': {
+        'url': 'https://www.scandiborn.co.uk/products/plum-play-discovery-woodland-treehouse',
+        'site_name': 'Scandibørn',
+        'type': 'product',
+        'title': 'Plum Play Discovery Woodland Treehouse',
+        'image': [
+          'http://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-320911_grande.jpg?v=1584688457',
+          'http://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-137566_grande.jpg?v=1584688457',
+          'http://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-179087_grande.jpg?v=1584688457'
+        ],
+        'image:secure_url': [
+          'https://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-320911_grande.jpg?v=1584688457',
+          'https://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-137566_grande.jpg?v=1584688457',
+          'https://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-179087_grande.jpg?v=1584688457'
+        ],
+        'price:amount': '399.95',
+        'price:currency': 'GBP',
+        'description': 'The Plum Play Discovery Woodland Treehouse is perfect for natures little ambassadors. Combining play, learning, creativity all year round, children can get up close with nature discovering all the wildlife hiding in the garden, practice their painting skills on the wipeable painting screen.'
+      },
+      'meta': {
+        'description': 'The Plum Play Discovery Woodland Treehouse is perfect for natures little ambassadors. Combining play, learning, creativity all year round, children can get up close with nature discovering all the wildlife hiding in the garden, practice their painting skills on the wipeable painting screen.',
+        'author': 'Scandibørn',
+        'og:url': 'https://www.scandiborn.co.uk/products/plum-play-discovery-woodland-treehouse',
+        'og:site_name': 'Scandibørn',
+        'og:type': 'product',
+        'og:title': 'Plum Play Discovery Woodland Treehouse',
+        'og:image': [
+          'http://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-320911_grande.jpg?v=1584688457',
+          'http://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-137566_grande.jpg?v=1584688457',
+          'http://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-179087_grande.jpg?v=1584688457'
+        ],
+        'og:image:secure_url': [
+          'https://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-320911_grande.jpg?v=1584688457',
+          'https://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-137566_grande.jpg?v=1584688457',
+          'https://cdn.shopify.com/s/files/1/1257/2223/products/plum-play-discovery-woodland-treehouse-179087_grande.jpg?v=1584688457'
+        ],
+        'og:price:amount': '399.95',
+        'og:price:currency': 'GBP',
+        'og:description': 'The Plum Play Discovery Woodland Treehouse is perfect for natures little ambassadors. Combining play, learning, creativity all year round, children can get up close with nature discovering all the wildlife hiding in the garden, practice their painting skills on the wipeable painting screen.',
+      },
+      'dc': {},
+      'page': {
+        'title': 'Plum Play Discovery Woodland Treehouse | Scandiborn',
+        'canonical': 'https://www.scandiborn.co.uk/products/plum-play-discovery-woodland-treehouse'
+      }
+    }
+
+
+@pytest.fixture
+def metadata_response_mp():
+    return {
+      'og': {
+        'url': 'https://www.mamasandpapas.com/en-gb/santa-christmas-jumper/p/s22lxy2',
+        'site_name': 'Mamas & Papas',
+        'title': 'Santa Christmas Jumper',
+        'type': 'product',
+        'description': 'Get ready for cosy Christmas cuddles. Our Christmas 2020 range is filled with festive fun for your little one, with cute winter characters and merry prints.',
+        'image': 'https://media.mamasandpapas.com/i/mamasandpapas/S22LXY2_HERO_SANTA XMAS JUMPER'
+      },
+      'meta': {
+        'og:url': 'https://www.mamasandpapas.com/en-gb/santa-christmas-jumper/p/s22lxy2',
+        'og:site_name': 'Mamas & Papas',
+        'og:title': 'Santa Christmas Jumper',
+        'og:type': 'product',
+        'og:description': 'Get ready for cosy Christmas cuddles. Our Christmas 2020 range is filled with festive fun for your little one, with cute winter characters and merry prints.',
+        'og:image': 'https://media.mamasandpapas.com/i/mamasandpapas/S22LXY2_HERO_SANTA XMAS JUMPER',
+        'product:price:amount': '14.25',
+        'product:price:currency': 'GBP'
+      },
+      'dc': {},
+      'page': {
+        'title': 'Santa Christmas Jumper | Mamas & Papas',
+        'canonical': 'https://www.mamasandpapas.com/en-gb/santa-christmas-jumper/p/s22lxy2'
+      }
+    }
+
+
+@pytest.fixture
+def metadata_response_k():
+    return {
+      'og': {},
+      'meta': {
+        'og:site_name': 'KIDLY',
+        'description': 'The KIDLY Label Recycled Gilet - A go-to warm layer with cool eco creds, to wear under rainwear or over hoodies, in colours to love.',
+        'og:title': 'Buy the KIDLY Label Recycled Gilet at KIDLY UK',
+        'og:url': '/products/kidly/recycled-gilet/9993',
+        'og:type': 'product',
+        'og:description': 'The KIDLY Label Recycled Gilet - A go-to warm layer with cool eco creds, to wear under rainwear or over hoodies, in colours to love.',
+        'og:image': 'https://kidlycatalogue.blob.core.windows.net/products/9993/product-images/brown-toffee-1/kidly-puffa-gilet-brown-toffee-500x500_02.jpg',
+        'og:image:type': 'image/jpeg',
+        'og:image:width': '500',
+        'og:image:height': '500'
+      },
+      'dc': {},
+      'page': {
+        'title': 'Buy the KIDLY Label Recycled Gilet at KIDLY UK',
+        'canonical': 'https://www.kidly.co.uk/products/kidly/recycled-gilet/9993'
+      }
     }

@@ -783,6 +783,199 @@
 			"name": "Update users gift with search hidden",
 			"item": [
 				{
+					"name": "delete list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "fe25187d-62e5-4620-8a34-bd996b25bd67",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response should confirm deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var deletedBool = jsonData['deleted'];",
+									"    pm.expect(deletedBool).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response should have a delete count\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var count = jsonData['count'];",
+									"    pm.expect(count).to.eql(2);",
+									"});",
+									"",
+									"pm.test(\"Clear environment variable\", function() {",
+									"    pm.environment.unset(\"list_id\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e19e8fab-1811-4ad0-8290-7e89ac3d29de",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists/{{list_id}}",
+							"protocol": "https",
+							"host": [
+								"{{lists_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"lists",
+								"{{list_id}}"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "delete product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b4f35903-661c-4146-8f26-be313acf03d4",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response should confirm deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var deletedBool = jsonData['deleted'];",
+									"    pm.expect(deletedBool).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Clear environment variable\", function() {",
+									"    pm.environment.unset(\"p_product_id\")",
+									"    pm.environment.unset(\"nf_product_id\")",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1f664b20-c46f-4be4-9ed2-903ecb2744d8",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{products_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/products/{{p_product_id}}",
+							"protocol": "https",
+							"host": [
+								"{{products_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"products",
+								"{{p_product_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "create list",
 					"event": [
 						{
@@ -1183,199 +1376,6 @@
 							]
 						},
 						"description": "Create list"
-					},
-					"response": []
-				},
-				{
-					"name": "delete list",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "fe25187d-62e5-4620-8a34-bd996b25bd67",
-								"exec": [
-									"pm.test(\"response is ok\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"response must be valid and have a body\", function () {",
-									"     // assert that the status code is 200",
-									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
-									"     // assert that the response has a valid JSON body",
-									"     pm.response.to.be.withBody;",
-									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
-									"});",
-									"",
-									"pm.test(\"Response should confirm deleted\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var deletedBool = jsonData['deleted'];",
-									"    pm.expect(deletedBool).to.eql(true);",
-									"});",
-									"",
-									"pm.test(\"Response should have a delete count\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var count = jsonData['count'];",
-									"    pm.expect(count).to.eql(2);",
-									"});",
-									"",
-									"pm.test(\"Clear environment variable\", function() {",
-									"    pm.environment.unset(\"list_id\")",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e19e8fab-1811-4ad0-8290-7e89ac3d29de",
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "awsv4",
-							"awsv4": [
-								{
-									"key": "secretKey",
-									"value": "{{SecretKey}}",
-									"type": "string"
-								},
-								{
-									"key": "accessKey",
-									"value": "{{AccessKey}}",
-									"type": "string"
-								},
-								{
-									"key": "service",
-									"value": "",
-									"type": "string"
-								},
-								{
-									"key": "region",
-									"value": "eu-west-1",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists/{{list_id}}",
-							"protocol": "https",
-							"host": [
-								"{{lists_url_id}}",
-								"execute-api",
-								"eu-west-1",
-								"amazonaws",
-								"com"
-							],
-							"path": [
-								"{{env}}",
-								"lists",
-								"{{list_id}}"
-							]
-						},
-						"description": "Create list"
-					},
-					"response": []
-				},
-				{
-					"name": "delete product",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "b4f35903-661c-4146-8f26-be313acf03d4",
-								"exec": [
-									"pm.test(\"response is ok\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"response must be valid and have a body\", function () {",
-									"     // assert that the status code is 200",
-									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
-									"     // assert that the response has a valid JSON body",
-									"     pm.response.to.be.withBody;",
-									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
-									"});",
-									"",
-									"pm.test(\"Response should confirm deleted\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var deletedBool = jsonData['deleted'];",
-									"    pm.expect(deletedBool).to.eql(true);",
-									"});",
-									"",
-									"pm.test(\"Clear environment variable\", function() {",
-									"    pm.environment.unset(\"p_product_id\")",
-									"    pm.environment.unset(\"nf_product_id\")",
-									"});",
-									"",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "1f664b20-c46f-4be4-9ed2-903ecb2744d8",
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "awsv4",
-							"awsv4": [
-								{
-									"key": "secretKey",
-									"value": "{{SecretKey}}",
-									"type": "string"
-								},
-								{
-									"key": "accessKey",
-									"value": "{{AccessKey}}",
-									"type": "string"
-								},
-								{
-									"key": "service",
-									"value": "",
-									"type": "string"
-								},
-								{
-									"key": "region",
-									"value": "eu-west-1",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "https://{{products_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/products/{{p_product_id}}",
-							"protocol": "https",
-							"host": [
-								"{{products_url_id}}",
-								"execute-api",
-								"eu-west-1",
-								"amazonaws",
-								"com"
-							],
-							"path": [
-								"{{env}}",
-								"products",
-								"{{p_product_id}}"
-							]
-						}
 					},
 					"response": []
 				}
@@ -2476,7 +2476,10 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"searchHidden\": true,\n    \"test\": {{create_test}},\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}"
+							"raw": "{\n    \"retailer\": \"amazon.co.uk\",\n    \"brand\": \"BABYBJÖRN\",\n    \"details\": \"Updated\",\n    \"price\": \"100.00\",\n    \"productUrl\": \"https://www.amazon.co.uk/dp/1234567890\",\n    \"imageUrl\": \"https://images-na.ssl-images-amazon.com/images/I/81qYpf1Sm2L._SX679_.jpg\",\n    \"searchHidden\": true,\n    \"test\": {{create_test}},\n    \"staging\": {{create_staging}},\n    \"prod\": {{create_prod}}\n}",
+							"options": {
+								"raw": {}
+							}
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/{{p_product_id}}",
@@ -2566,7 +2569,10 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": ""
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
 						},
 						"url": {
 							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/products/{{p_product_id}}",
@@ -2703,6 +2709,194 @@
 							""
 						]
 					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Query Url Metadata",
+			"item": [
+				{
+					"name": "query url",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0a198ed4-925a-49db-992f-c0373c5dc335",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"The returned object should contain the correct product details\", function () {",
+									"    var product_obj = pm.response.json();",
+									"    pm.expect(product_obj.site_name).to.eql(\"The  White Company UK\");",
+									"    pm.expect(product_obj.title).to.eql(\"Snowman Knitted Romper\");",
+									"    pm.expect(product_obj.image).to.eql(\"https://whitecompany.scene7.com/is/image/whitecompany/Snowman-Knitted-Romper/SNTOO_15_MAIN_P?$D_PDP_412x525$\");",
+									"    pm.expect(product_obj.price).to.eql(\"34.00\");",
+									"    pm.expect(product_obj.currency).to.eql(\"GBP\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/query/metadata/https%3A%2F%2Fwww.thewhitecompany.com%2Fuk%2FSnowman-Knitted-Romper%2Fp%2FSNTOO",
+							"protocol": "https",
+							"host": [
+								"{{tools_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"tools",
+								"query",
+								"metadata",
+								"https%3A%2F%2Fwww.thewhitecompany.com%2Fuk%2FSnowman-Knitted-Romper%2Fp%2FSNTOO"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "query blocked url",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1e039e69-51cd-4b18-9dae-502a0e66b22d",
+								"exec": [
+									"pm.test(\"response is 500\", function () {",
+									"    pm.response.to.have.status(500);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     pm.response.to.be.error;",
+									"     ",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response message should exist\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var message = jsonData['error'];",
+									"    pm.expect(message).to.eql('Metadata query failed.');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "https://{{tools_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/tools/query/metadata/https%3A%2F%2Fwww.amazon.co.uk%2FBABYBJ%C3%96RN-Bouncer-Bliss-Jersey-Friends%2Fdp%2FB07NNTZGPS%3Fref_%3Dast_sto_dp",
+							"protocol": "https",
+							"host": [
+								"{{tools_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"tools",
+								"query",
+								"metadata",
+								"https%3A%2F%2Fwww.amazon.co.uk%2FBABYBJ%C3%96RN-Bouncer-Bliss-Jersey-Friends%2Fdp%2FB07NNTZGPS%3Fref_%3Dast_sto_dp"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}

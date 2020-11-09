@@ -5,6 +5,7 @@ phases:
     commands:
       - pip install -q --upgrade pip
       - pip install -Iv moto==1.3.14
+      - pip install -Iv metadata_parser==0.10.4
       - pip install -q --user pytest boto3 --no-warn-script-location
       - /root/.local/bin/pytest --version
   build:
