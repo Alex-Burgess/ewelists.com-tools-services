@@ -24,6 +24,29 @@ class TestNotfound:
             "productUrl": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"
         }, "Product object not correct."
 
+    def test_get_all_details(self):
+        item = {
+            "productId": {"S": "12345678-notf-0020-1234-abcdefghijkl"},
+            "createdBy": {"S": "12345678-user-0001-1234-abcdefghijkl"},
+            "brand": {"S": "JL"},
+            "details": {"S": "Safari Mobile"},
+            "price": {"S": "9.00"},
+            "imageUrl": {"S": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$"},
+            "productUrl": {"S": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165"}
+        }
+
+        product = Notfound(item).get_product()
+
+        assert product == {
+            "productId": "12345678-notf-0020-1234-abcdefghijkl",
+            "createdBy": "12345678-user-0001-1234-abcdefghijkl",
+            "brand": "JL",
+            "details": "Safari Mobile",
+            "productUrl": "https://www.johnlewis.com/john-lewis-partners-safari-mobile/p3439165",
+            "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$",
+            "price": "9.00"
+        }, "Product object not correct."
+
 
 class TestProduct:
     def test_get_details(self):
