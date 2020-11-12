@@ -783,199 +783,6 @@
 			"name": "Update users gift with search hidden",
 			"item": [
 				{
-					"name": "delete list",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "fe25187d-62e5-4620-8a34-bd996b25bd67",
-								"exec": [
-									"pm.test(\"response is ok\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"response must be valid and have a body\", function () {",
-									"     // assert that the status code is 200",
-									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
-									"     // assert that the response has a valid JSON body",
-									"     pm.response.to.be.withBody;",
-									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
-									"});",
-									"",
-									"pm.test(\"Response should confirm deleted\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var deletedBool = jsonData['deleted'];",
-									"    pm.expect(deletedBool).to.eql(true);",
-									"});",
-									"",
-									"pm.test(\"Response should have a delete count\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var count = jsonData['count'];",
-									"    pm.expect(count).to.eql(2);",
-									"});",
-									"",
-									"pm.test(\"Clear environment variable\", function() {",
-									"    pm.environment.unset(\"list_id\")",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "e19e8fab-1811-4ad0-8290-7e89ac3d29de",
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "awsv4",
-							"awsv4": [
-								{
-									"key": "secretKey",
-									"value": "{{SecretKey}}",
-									"type": "string"
-								},
-								{
-									"key": "accessKey",
-									"value": "{{AccessKey}}",
-									"type": "string"
-								},
-								{
-									"key": "service",
-									"value": "",
-									"type": "string"
-								},
-								{
-									"key": "region",
-									"value": "eu-west-1",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists/{{list_id}}",
-							"protocol": "https",
-							"host": [
-								"{{lists_url_id}}",
-								"execute-api",
-								"eu-west-1",
-								"amazonaws",
-								"com"
-							],
-							"path": [
-								"{{env}}",
-								"lists",
-								"{{list_id}}"
-							]
-						},
-						"description": "Create list"
-					},
-					"response": []
-				},
-				{
-					"name": "delete product",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "b4f35903-661c-4146-8f26-be313acf03d4",
-								"exec": [
-									"pm.test(\"response is ok\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"response must be valid and have a body\", function () {",
-									"     // assert that the status code is 200",
-									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
-									"     // assert that the response has a valid JSON body",
-									"     pm.response.to.be.withBody;",
-									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
-									"});",
-									"",
-									"pm.test(\"Response should confirm deleted\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var deletedBool = jsonData['deleted'];",
-									"    pm.expect(deletedBool).to.eql(true);",
-									"});",
-									"",
-									"pm.test(\"Clear environment variable\", function() {",
-									"    pm.environment.unset(\"p_product_id\")",
-									"    pm.environment.unset(\"nf_product_id\")",
-									"});",
-									"",
-									"",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "1f664b20-c46f-4be4-9ed2-903ecb2744d8",
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "awsv4",
-							"awsv4": [
-								{
-									"key": "secretKey",
-									"value": "{{SecretKey}}",
-									"type": "string"
-								},
-								{
-									"key": "accessKey",
-									"value": "{{AccessKey}}",
-									"type": "string"
-								},
-								{
-									"key": "service",
-									"value": "",
-									"type": "string"
-								},
-								{
-									"key": "region",
-									"value": "eu-west-1",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "https://{{products_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/products/{{p_product_id}}",
-							"protocol": "https",
-							"host": [
-								"{{products_url_id}}",
-								"execute-api",
-								"eu-west-1",
-								"amazonaws",
-								"com"
-							],
-							"path": [
-								"{{env}}",
-								"products",
-								"{{p_product_id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "create list",
 					"event": [
 						{
@@ -1376,6 +1183,199 @@
 							]
 						},
 						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "delete list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "fe25187d-62e5-4620-8a34-bd996b25bd67",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response should confirm deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var deletedBool = jsonData['deleted'];",
+									"    pm.expect(deletedBool).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Response should have a delete count\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var count = jsonData['count'];",
+									"    pm.expect(count).to.eql(2);",
+									"});",
+									"",
+									"pm.test(\"Clear environment variable\", function() {",
+									"    pm.environment.unset(\"list_id\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e19e8fab-1811-4ad0-8290-7e89ac3d29de",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{lists_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/lists/{{list_id}}",
+							"protocol": "https",
+							"host": [
+								"{{lists_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"lists",
+								"{{list_id}}"
+							]
+						},
+						"description": "Create list"
+					},
+					"response": []
+				},
+				{
+					"name": "delete product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b4f35903-661c-4146-8f26-be313acf03d4",
+								"exec": [
+									"pm.test(\"response is ok\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"response must be valid and have a body\", function () {",
+									"     // assert that the status code is 200",
+									"     pm.response.to.be.ok; // info, success, redirection, clientError,  serverError, are other variants",
+									"     // assert that the response has a valid JSON body",
+									"     pm.response.to.be.withBody;",
+									"     pm.response.to.be.json; // this assertion also checks if a body  exists, so the above check is not needed",
+									"});",
+									"",
+									"pm.test(\"Response should confirm deleted\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var deletedBool = jsonData['deleted'];",
+									"    pm.expect(deletedBool).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Clear environment variable\", function() {",
+									"    pm.environment.unset(\"p_product_id\")",
+									"    pm.environment.unset(\"nf_product_id\")",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "1f664b20-c46f-4be4-9ed2-903ecb2744d8",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "awsv4",
+							"awsv4": [
+								{
+									"key": "secretKey",
+									"value": "{{SecretKey}}",
+									"type": "string"
+								},
+								{
+									"key": "accessKey",
+									"value": "{{AccessKey}}",
+									"type": "string"
+								},
+								{
+									"key": "service",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "region",
+									"value": "eu-west-1",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://{{products_url_id}}.execute-api.eu-west-1.amazonaws.com/{{env}}/products/{{p_product_id}}",
+							"protocol": "https",
+							"host": [
+								"{{products_url_id}}",
+								"execute-api",
+								"eu-west-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"{{env}}",
+								"products",
+								"{{p_product_id}}"
+							]
+						}
 					},
 					"response": []
 				}

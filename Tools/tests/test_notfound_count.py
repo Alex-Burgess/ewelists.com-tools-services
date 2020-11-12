@@ -26,4 +26,4 @@ class TestHandler:
         assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
         body = json.loads(response['body'])
-        assert body['count'] == 2, "Number of items was not as expected."
+        assert body['count'] == 3, "Number of items was not as expected."

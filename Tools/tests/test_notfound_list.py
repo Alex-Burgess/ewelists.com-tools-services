@@ -26,7 +26,7 @@ class TestHandler:
         assert response['headers'] == {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}
 
         body = json.loads(response['body'])
-        assert len(body['items']) == 2, "Number of items was not as expected."
+        assert len(body['items']) == 3, "Number of items was not as expected."
         assert body['items'][0] == {
             "productId": "12345678-notf-0010-1234-abcdefghijkl",
             "createdBy": "12345678-user-0001-1234-abcdefghijkl",
@@ -41,4 +41,14 @@ class TestHandler:
             "brand": "Tommee Tippee",
             "details": "Feeding Set",
             "productUrl": "https://www.johnlewis.com/tommee-tippee-closer-to-nature-complete-feeding-set-white/p4159158"
+        }, "Product item was not as expected"
+
+        assert body['items'][2] == {
+            "productId": "12345678-notf-0020-1234-abcdefghijkl",
+            "createdBy": "12345678-user-0003-1234-abcdefghijkl",
+            "brand": "John Lewis",
+            "details": "Baby Sleeveless Organic GOTS Cotton Bodysuits, Pack of 5, White",
+            "productUrl": "https://www.johnlewis.com/john-lewis-partners-baby-sleeveless-organic-gots-cotton-bodysuits-pack-of-5-white/p3182352",
+            "imageUrl": "https://johnlewis.scene7.com/is/image/JohnLewis/002955092?$rsp-pdp-port-640$",
+            "price": "9.00",
         }, "Product item was not as expected"
